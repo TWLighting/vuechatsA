@@ -1,0 +1,419 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Addin Module</title>
+    <!-- css plugins -->
+    <link rel="stylesheet" href="/static/addins/SampleAddin/css/deviceOn.css" />
+    <link rel="stylesheet" href="/static/addins/SampleAddin/css/common.css" />
+    <link
+      rel="stylesheet"
+      href="/static/addins/SampleAddin/css/custom_echart.css"
+    />
+    <!-- Load required Bootstrap and BootstrapVue CSS -->
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="/static/addins/SampleAddin/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="/static/addins/SampleAddin/css/bootstrap-vue.min.css"
+    />
+    <!-- javascript plugins -->
+    <script src="/static/addins/SampleAddin/libs/vue-2.6.10.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/vue-tables-2-1.4.70.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/axios.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/sweetalert2.all.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/vue-sweetalert2-2.1.1.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/echarts-4.3.0.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/moment-2.24.0.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/vue-single-select.min.js"></script>
+
+    <!-- javascript common plugins -->
+    <script src="/static/addins/SampleAddin/js/RMMGlobal.js"></script>
+    <script src="/static/addins/SampleAddin/js/DeviceOnApis.js"></script>
+    <script src="/static/addins/SampleAddin/js/util.js"></script>
+    <!-- Load polyfills to support older browsers -->
+    <script
+      src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Load Vue followed by BootstrapVue -->
+    <script src="/static/addins/SampleAddin/libs/bootstrap-vue.min.js"></script>
+    <!-- Load the following for BootstrapVueIcons support -->
+    <script src="/static/addins/SampleAddin/libs/bootstrap-vue-icons.min.js"></script>
+    <!-- Load Vue followed by vue-chartjs -->
+    <script src="/static/addins/SampleAddin/libs/Chart.min.js"></script>
+    <script src="/static/addins/SampleAddin/libs/vue-chartjs.min.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <b-navbar
+        v-bind:style="{ marginBottom: '10px' }"
+        type="dark"
+        variant="dark"
+      >
+        <b-navbar-brand href="#">NavBar</b-navbar-brand>
+
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item right>
+            <b-icon icon="bell" font-scale="2"></b-icon>
+          </b-nav-item>
+          <b-nav-item right>
+            <b-icon icon="wifi" font-scale="2"></b-icon>
+          </b-nav-item>
+          <b-nav-item right>
+            <b-icon icon="person" font-scale="2"></b-icon>
+          </b-nav-item>
+        </b-navbar-nav>
+      </b-navbar>
+      <b-container fluid class="bv-example-row">
+        <b-row>
+          <b-col sm="2" md="2">
+            <Sidebar></Sidebar>
+          </b-col>
+          <b-col sm="10" md="10">
+            <!-- first floor -->
+            <b-row cols="2">
+              <b-col class="ssdcube" ref="barattr">
+                <a class="point" @click="changealert">
+                  <Chartcube :title="titlegroup[0]" :items="items"></Chartcube>
+                </a>
+              </b-col>
+              <b-col class="ssdcube">
+                <a class="point" @click="changeLine">
+                  <Chartcube :title="titlegroup[3]" :items="items"></Chartcube>
+                </a>
+              </b-col>
+            </b-row>
+            <!-- secord floor -->
+            <b-row>
+              <b-col class="temperaturelist justify-content-center">
+                <!--J-NOTE 是否要使用切換功能-->
+                <!-- <Temperaturegauge
+                    :items="items"
+                    :TemperaturRange="TemperaturRange"
+                    @chiesecolor="statucolor"
+                  >
+                   <template v-slot:header>
+                      <div>
+                        <h5>{{ titlegroup[5] }}</h5>
+                        <hr size="1" width="100%" color="#ffffff" />
+                      </div>
+                    </template>
+                  </Temperaturegauge> -->
+                <!--J-NOTE echarts-->
+                <title-row
+                  :title="titlegroup[5]"
+                  :showtri="true"
+                  v-model="istriforTemp"
+                  @changeTriangle="controlTriangle"
+                >
+                </title-row>
+                <component
+                  :is="Tempercontrol"
+                  :title="titlegroup[5]"
+                  :items="items"
+                  :TemperaturRange="TemperaturRange"
+                  @chiesecolor="statucolor"
+                ></component>
+                <!-- <Temperaturegauge2
+                    :title="titlegroup[5]"
+                    :items="items"
+                    :controltri="istriforTemp"
+                    :TemperaturRange="TemperaturRange"
+                    @chiesecolor="statucolor"
+                    @changeTriangle="controlTriangle"
+                  >
+                  </Temperaturegauge2> -->
+              </b-col>
+            </b-row>
+            <!-- third floor -->
+            <b-row cols="3">
+              <b-col class="ssdcube">
+                <a class="point" @click="changePieRead">
+                  <!--TAG--->
+                  <Ssdprogress
+                    :title="titlegroup[1]"
+                    :items="items"
+                    :btype="'Read'"
+                  >
+                    <b-col>
+                      <h5>Read(MB/s)</h5>
+                    </b-col>
+                  </Ssdprogress>
+                </a>
+              </b-col>
+              <b-col class="ssdcube">
+                <a class="point" @click="changePieWrite">
+                  <Ssdprogress
+                    :title="titlegroup[2]"
+                    :items="items"
+                    :btype="'Write'"
+                  >
+                    <b-col>
+                      <h5>Write(MB/s)</h5>
+                    </b-col>
+                  </Ssdprogress>
+                </a>
+              </b-col>
+              <b-col class="ssdcube">
+                <Gauge :style="{ padding: '5px' }">
+                  <template v-slot:header>
+                    <div>
+                      <h5>{{ titlegroup[4] }}</h5>
+                      <hr size="1" width="100%" color="#ffffff" />
+                    </div>
+                  </template>
+                  <div class="inner-text">
+                    <p>Online/Total SSD</p>
+                  </div>
+                  <div class="inner-text">
+                    <span>70/100</span>
+                  </div>
+                </Gauge>
+              </b-col>
+            </b-row>
+            <!-- table floor -->
+            <b-row>
+              <b-col class="detailtable">
+                <b-form :style="{ color: '#00b2a9' }">
+                  <b-row>
+                    <b-col sm="2" md="2">
+                      <b-form-group
+                        label="Select Account"
+                        label-for="acountList"
+                      >
+                        <b-form-select
+                          id="acountList"
+                          v-model="tableFrom.acount.value"
+                          :options="tableFrom.acount.acountOptions"
+                        ></b-form-select>
+                      </b-form-group>
+                    </b-col>
+                    <b-col sm="2" md="2">
+                      <b-form-group
+                        label="Select Groups"
+                        label-for="acountList"
+                      >
+                        <b-form-select
+                          id="Select"
+                          v-model="tableFrom.groups.value"
+                          :options="tableFrom.groups.groupsOptions"
+                        ></b-form-select>
+                      </b-form-group>
+                    </b-col>
+                    <b-col sm="2" md="2">
+                      <b-form-group label="Select Status" label-for="Status">
+                        <b-form-select
+                          id="Status"
+                          v-model="tableFrom.status.value"
+                          :options="tableFrom.status.statusOptions"
+                        ></b-form-select>
+                      </b-form-group>
+                    </b-col>
+                    <b-col sm="2" md="2">
+                      <b-form-group label="Keyword Search" label-for="Keyword">
+                        <b-form-input
+                          id="Keyword"
+                          v-model="tableFrom.keyword.value"
+                          placeholder="ALL"
+                        ></b-form-input>
+                      </b-form-group>
+                    </b-col>
+                  </b-row>
+                </b-form>
+                <!--J-TODO 在t-head中的七中一個欄位加入2個列下面的塞2欄-->
+                <b-table
+                  id="ssd-tb"
+                  responsive
+                  striped
+                  hover
+                  :fields="fields"
+                  :items="items"
+                  :per-page="perPage"
+                  :current-page="currentPage"
+                  class="ssdtable"
+                >
+                  <template v-slot:thead-top="data">
+                    <b-tr rowspan="2">
+                      <b-th class="ssdseeting" colspan="6"></b-th>
+                      <b-th class="ssdseeting" colspan="2"
+                        >Weekly Workload(GB)</b-th
+                      >
+                      <b-th class="ssdseeting" colspan="4"></b-th>
+                    </b-tr>
+                  </template>
+
+                  <template v-slot:cell(Status)="data">
+                    <b-row class="text-center" style="font-size: 24px;">
+                      <b-col class="py-2 mb-1">
+                        <!--J-DONE：處理圓點燈號顏色-->
+                        <b-icon
+                          icon="circle-fill"
+                          :style="{ color: statucolor(data.value) }"
+                        >
+                        </b-icon>
+                      </b-col>
+                    </b-row>
+                  </template>
+                  <template v-slot:cell(Coreanalyzer)="data">
+                    <b-row class="text-center" style="font-size: 24px;">
+                      <b-col class="py-2 mb-1">
+                        <b-icon
+                          icon="alert-circle"
+                          class="Coreanalyzericon"
+                        ></b-icon>
+                      </b-col>
+                    </b-row>
+                  </template>
+                  <template v-slot:cell(Upgrade)="data">
+                    <b-row class="text-center" style="font-size: 24px;">
+                      <b-col class="py-2 mb-1">
+                        <b-icon
+                          icon="alert-circle"
+                          class="Recoveryicon"
+                        ></b-icon>
+                      </b-col>
+                    </b-row>
+                  </template>
+                  <template v-slot:cell(Recovery)="data">
+                    <b-row class="text-center" style="font-size:24px;">
+                      <b-col class="py-2 mb-1">
+                        <b-icon
+                          icon="arrow-repeat"
+                          class="Recoveryicon"
+                        ></b-icon>
+                      </b-col>
+                    </b-row>
+                  </template>
+                </b-table>
+                <!--J-NOTE 完成基本分頁功能 看是否要自訂頁數功能-->
+                <b-pagination
+                  pills
+                  size="sm"
+                  align="center"
+                  v-model="currentPage"
+                  :total-rows="rows"
+                  :per-page="perPage"
+                  aria-controls="ssd-tb"
+                ></b-pagination>
+              </b-col>
+            </b-row>
+          </b-col>
+        </b-row>
+      </b-container>
+      <router-view />
+      <!--J-NOTE 彈出組件的內容要依照點進去的內容顯示資料 完成-->
+      <!--alertcompount-->
+      <component
+        :is="alertcompount"
+        v-if="isAlert"
+        v-on:close-alert="changealert"
+      >
+        <Chartcube
+          :title="titlegroup[0]"
+          :items="items"
+          :height="'500px'"
+        ></Chartcube>
+      </component>
+      <!--Linecompount-->
+      <component
+        :is="alertcompount"
+        v-if="isLine"
+        v-on:close-alert="changeLine"
+      >
+        <Linecube :title="titlegroup[3]" :items="items"></Linecube>
+      </component>
+      <!--piecompount-->
+      <!--J-NOTE Read圓餅圖未完成-->
+      <component
+        :is="alertcompount"
+        v-if="isPieRead"
+        v-on:close-alert="changePieRead"
+      >
+        <Piecube
+          :title="titlegroup[1]"
+          :items="items"
+          :pietype="'Read'"
+        ></Piecube>
+      </component>
+      <!--piecompount-->
+      <!--J-NOTE Write圓餅圖未完成-->
+      <transition name="fade" mode="out-in" appear>
+        <component
+          :is="alertcompount"
+          v-if="isPieWrite"
+          v-on:close-alert="changePieWrite"
+        >
+          <Piecube
+            :title="titlegroup[2]"
+            :items="items"
+            :pietype="'Write'"
+          ></Piecube>
+        </component>
+      </transition>
+    </div>
+  </body>
+</html>
+<script>
+  Vue.component("title-row", {
+    model: {
+      prop: "checked",
+      event: "click"
+    },
+    props: {
+      title: {
+        type: String,
+        default: null
+      },
+      checked: {
+        type: Boolean,
+        default: true
+      },
+      showtri: {
+        type: Boolean,
+        default: false
+      }
+    },
+    methods: {
+      changetri() {
+        this.trichecked = !this.trichecked;
+        this.$emit("changeTriangle", this.trichecked);
+      }
+    },
+    data() {
+      return {
+        trichecked: this.checked
+      };
+    },
+    template: `
+          <div>
+            <b-col>
+              <h5 class="text-left">
+                {{title}}
+                <template v-if="showtri">
+                <span>|</span>
+                <transition name="fade">
+                <span @click="changetri"
+                  :class=" { 'triangle-bottom': !trichecked, 'triangle-top':trichecked }"></span>
+                </transition>  
+                </template>
+              </h5>
+            </b-col>
+            <hr size="1" width="100%" color="#ffffff" />
+         </div>
+         `
+  });
+  // eslint-disable-next-line no-new
+  new Vue({
+    el: "#app",
+    router,
+    components: {},
+    render: h => h(App)
+  });
+</script>

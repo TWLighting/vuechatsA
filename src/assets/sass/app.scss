@@ -1,0 +1,142 @@
+$cube-basic-h: auto;
+
+@mixin margin-setting($updown, $leftright) {
+  margin: $updown $leftright;
+}
+#app {
+  text-align: center;
+  color: #2c3e50;
+  overflow: hidden;
+}
+.cubebackground {
+  background: #464655;
+}
+.boxSizing {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.ssdcube {
+  @extend .cubebackground;
+  display: inline-block;
+  border: solid #ffffff 10px;
+  padding: 1rem;
+  height: $cube-basic-h;
+  color: #ffffff;
+}
+
+.temperaturelist {
+  @extend .cubebackground;
+  display: inline-block;
+  height: auto;
+  border: solid #ffffff 10px;
+  color: #ffffff;
+  padding: 2rem;
+}
+.ssdtable {
+  overflow: hidden;
+}
+.detailtable {
+  @extend .cubebackground;
+  width: 100%;
+  height: auto;
+  border: solid #ffffff 10px;
+  padding: 10px;
+}
+.ssdsidebar {
+  @extend .cubebackground;
+  height: 100%;
+  margin-top: 10px;
+}
+.ssdseeting {
+  background: #006666;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  word-wrap: break-word;
+}
+.ssdtd {
+  background: #464655;
+}
+.Recoveryicon {
+  background: #999999;
+}
+.Coreanalyzericon {
+  background: #00f0b4;
+}
+.inner-text {
+  height: auto;
+  width: 100%;
+  p {
+    margin-top: -4rem;
+  }
+  span {
+    max-width: 100px;
+    color: #00b2a9;
+  }
+}
+.alertbox {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  background: rgba(98, 98, 98, 0.8);
+}
+.alertbox .more-content {
+  position: relative;
+
+  width: 55%;
+  background: white;
+  border-radius: 5px;
+  margin: 40px auto;
+  padding: 20px;
+}
+.alertbox .setright {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+}
+.alertbox .icon {
+  cursor: pointer;
+}
+.point:hover {
+  cursor: pointer;
+}
+.bgray {
+  background-color: #464655;
+}
+//自訂Progress
+.myProgress {
+  width: 100%;
+}
+.mybar {
+  padding: 1px 0;
+  text-align: center;
+  color: #ffffff;
+}
+.triangle-top {
+  position: absolute;
+  top: 5px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 9px 18px 9px;
+  border-color: transparent transparent #00b2a9 transparent;
+  cursor: pointer;
+}
+.triangle-bottom {
+  position: absolute;
+  top: 5px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 18px 9px 0 9px;
+  border-color: #00b2a9 transparent transparent transparent;
+  cursor: pointer;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  transition: opacity 0.5s;
+}
