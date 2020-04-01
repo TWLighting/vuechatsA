@@ -1,0 +1,1765 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Addin Module</title>
+  <!-- css plugins -->
+  <link rel="stylesheet" href="/static/addins/SampleAddin/css/deviceOn.css" />
+  <link rel="stylesheet" href="/static/addins/SampleAddin/css/common.css" />
+  <link rel="stylesheet" href="/static/addins/SampleAddin/css/custom_echart.css" />
+
+  <!-- javascript plugins -->
+  <script src="/static/addins/SampleAddin/libs/vue-2.6.10.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-tables-2-1.4.70.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/axios.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/sweetalert2.all.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-sweetalert2-2.1.1.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/echarts-4.3.0.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-echarts.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/moment-2.24.0.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-single-select.min.js"></script>
+
+  <!-- javascript common plugins -->
+  <script src="/static/addins/SampleAddin/js/RMMGlobal.js"></script>
+  <script src="/static/addins/SampleAddin/js/DeviceOnApis.js"></script>
+  <script src="/static/addins/SampleAddin/js/util.js"></script>
+
+  <style>
+    hr {
+      border: 1px solid #00f0b4;
+    }
+
+    .form-group {
+      background-color: #464655;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body style="background: #000000;">
+  <div id="app">
+    <div class="content">
+      <div class="row">
+        <div class="col-md-6 col-xl-6 inline-block">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div class="chart-title" style="color: #00f0b4;">
+              5 Riskiest SSDs
+            </div>
+            <hr />
+            <div ref="chart_lifetime" style="height:350px; width:100%;"></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-6 inline-block">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div class="chart-title" style="color: #00f0b4;">
+              5 SSDs with Unexpected Power Cycles
+            </div>
+            <hr />
+            <div ref="chart_powerloss" style="height:350px; width:100%;"></div>
+          </div>
+        </div>
+        <div class="col-md-12 col-xl-12 inline-block">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div class="chart-title" style="color: #00f0b4;">
+              5 SSDs with Temperature Abnormalities
+            </div>
+            <hr />
+            <div ref="chart_temp" style="height:350px; width:100%;"></div>
+          </div>
+        </div>
+        <div class="col-md-4 col-xl-4 inline-block">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div class="chart-title" style="color: #00f0b4;">
+              5 SSDs with Highest Read Workloads
+            </div>
+            <hr />
+            <div ref="chart_readworkloads" style="height:350px; width:100%;"></div>
+          </div>
+        </div>
+        <div class="col-md-4 col-xl-4 inline-block">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div class="chart-title" style="color: #00f0b4;">
+              5 SSDs with Highest Write Workloads
+            </div>
+            <hr />
+            <div ref="chart_writeworkloads" style="height:350px; width:100%;"></div>
+          </div>
+        </div>
+        <div class="col-md-4 col-xl-4 inline-block">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div class="chart-title" style="color: #00f0b4;">
+              Online / Total SSDs
+            </div>
+            <hr />
+            <div ref="chart_totalssds" style="height:350px; width:100%;"></div>
+          </div>
+        </div>
+        <div class="col-md-12 col-xl-12 ">
+          <div class="chart-wrapper" style="background: #464655;">
+            <div>
+              <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></loading>
+              <v-client-table class="table-responsive" :columns="columns" :data="deviceData" :options="tableOptions">
+                <div slot="status" slot-scope="props" :title="props.row.status">
+                  <span :class="props.row.statusClass">
+                    <img :src="props.row.iconClass" aria-hidden="true"></i>
+                  </span>
+                </div>
+              </v-client-table>
+              <div ref="chart_ssdlist" style="height:350px; width:100%;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+</body>
+<script>
+  Vue.use(VueTables.ClientTable); // Client table
+  //Vue.use(VueLoading);
+  //Vue.component('loading', VueLoading);
+
+  var size = 12;
+  // var total = 0;
+  var count = 0;
+  var read_max = 60;
+  var write_max = 60;
+  let self = {};
+  var vue = new Vue({
+    el: '#app',
+    components: {
+      loading: window['VueLoading']
+    },
+    data: {
+      logourl: '.\\DBS test.jpg',
+      aid: 0,
+      gid: 0,
+      //did: 1,
+      did: 0,
+      index: 0,
+      //agentid: '00000001-0000-0000-0000-022731780F77',
+      agentid: '',
+      name: '',
+      time: null,
+      plugin: 'SSDStatus',
+      selectedAccount: '',
+      accountOptions: [],
+      selectedGroup: '',
+      groupOptions: [],
+      selectedDevice: '',
+      deviceOptions: [],
+      selectedStatus: '',
+      statusOptions: [],
+      isLoading: true,
+      columns: [
+        'status',
+        'device_name',
+        'capacity',
+        'usage',
+        'temp',
+        'unexpect_power_cycle_count',
+        'workload_read',
+        'workload_write',
+        'group_name'
+      ],
+      deviceData: [],
+      tableOptions: {
+        sortable: [
+          'status',
+          'device_name',
+          'capacity',
+          'usage',
+          'temp',
+          'unexpect_power_cycle_count',
+          'workload_read',
+          'workload_write',
+          'group_name'
+        ],
+        filterable: ['name'],
+        background: '#464655',
+        color: '#ffffff',
+        headings: {
+          workload_read: 'workload_read(MB/S)',
+          workload_write: 'workload_write(MB/S)'
+        }
+      },
+      TIMEINTERVAL_AUTOREPORT: 1,
+      TIMEINTERVAL_LATESTDATA: 3,
+      pluginLatestData: {},
+      pluginLifetimeDisk1Data: {},
+      pluginLifetimeDisk2Data: {},
+      pluginLifetimeSortedData: {},
+      pluginPowerLossDisk1Data: {},
+      pluginPowerLossDisk2Data: {},
+      pluginPowerLossSortedData: {},
+      pluginTempDisk1Data: {},
+      pluginTempDisk2Data: {},
+      pluginTempSortedData: {},
+      pluginReadWorkloadDisk1Data: {},
+      pluginReadWorkloadDisk2Data: {},
+      pluginReadWorkloadSortedData: {},
+      pluginWriteWorkloadDisk1Data: {},
+      pluginWriteWorkloadDisk2Data: {},
+      pluginWriteWorkloadSortedData: {},
+      timLatest: 0,
+      COLOR: ['#006666', '#008e8a', '#00b2a9', '#ff6633', '#f24444'],
+      ICON: ['.\\green.png', '.\\org.png', '.\\red.png', '.\\gray.png'],
+      initChartCheck_lifetime: true,
+      initChartCheck_powerloss: true,
+      initChartCheck_temp: true,
+      initChartCheck_totalssds: true,
+      initChartCheck_readworkloads: true,
+      initChartCheck_writeworkloads: true,
+      chart_lifetime: '',
+      chart_powerloss: '',
+      chart_temp: '',
+      chart_readworkloads: '',
+      chart_writeworkloads: '',
+      chart_totalssds: '',
+      option_lifetime: {
+        tooltip: {
+          trigger: 'axis',
+          padding: [5, 10]
+        },
+        xAxis: {
+          name: '%',
+          type: 'value',
+          min: 0,
+          max: 100,
+          splitNumber: 10,
+          axisLine: {
+            lineStyle: {
+              color: '#ffffff'
+            }
+          }
+        },
+        yAxis: {
+          type: 'category',
+          axisLine: {
+            lineStyle: {
+              color: '#ffffff'
+            }
+          },
+          data: ['SSD1', 'SSD2', 'SSD3', 'SSD4', 'SSD5']
+        },
+        grid: {
+          left: 20,
+          right: 50,
+          bottom: 40,
+          top: 60,
+          containLabel: true
+        },
+        series: [
+          {
+            type: 'bar',
+            data: [
+              {
+                name: 'SSD1',
+                itemStyle: {
+                  normal: {
+                    color: '#006666'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD2',
+                itemStyle: {
+                  normal: {
+                    color: '#008e8a'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD3',
+                itemStyle: {
+                  normal: {
+                    color: '#00b2a9'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD4',
+                itemStyle: {
+                  normal: {
+                    color: '#ff6633'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD5',
+                itemStyle: {
+                  normal: {
+                    color: '#f24444'
+                  }
+                },
+                value: 0
+              }
+            ]
+          }
+        ]
+      },
+      option_powerloss: {
+        tooltip: {
+          trigger: 'axis',
+          padding: [5, 10]
+        },
+        xAxis: {
+          name: 'times',
+          type: 'value',
+          axisLine: {
+            lineStyle: {
+              color: '#ffffff'
+            }
+          }
+        },
+        yAxis: {
+          type: 'category',
+          axisLine: {
+            lineStyle: {
+              color: '#ffffff'
+            }
+          },
+          data: ['SSD1', 'SSD2', 'SSD3', 'SSD4', 'SSD5']
+        },
+        grid: {
+          left: 20,
+          right: 50,
+          bottom: 40,
+          top: 60,
+          containLabel: true
+        },
+        series: [
+          {
+            type: 'bar',
+            data: [
+              {
+                name: 'SSD1',
+                itemStyle: {
+                  normal: {
+                    color: '#006666'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD2',
+                itemStyle: {
+                  normal: {
+                    color: '#008e8a'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD3',
+                itemStyle: {
+                  normal: {
+                    color: '#00b2a9'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD4',
+                itemStyle: {
+                  normal: {
+                    color: '#ff6633'
+                  }
+                },
+                value: 0
+              },
+              {
+                name: 'SSD5',
+                itemStyle: {
+                  normal: {
+                    color: '#f24444'
+                  }
+                },
+                value: 0
+              }
+            ]
+          }
+        ]
+      },
+      option_temp: {
+        baseOption: {
+          tooltip: {
+            formatter: '{b} <br/> {c} {a}'
+          },
+          legend: {
+            right: 'center',
+            bottom: 0,
+            orient: 'horizontal'
+          },
+          series: [
+            {
+              name: '℃',
+              type: 'gauge',
+              center: ['10%', '50%'],
+              min: -40,
+              max: 100,
+              splitNumber: 14,
+              startAngle: 225,
+              endAngle: -45,
+              axisLine: {
+                lineStyle: {
+                  width: 20,
+                  color: [
+                    [0.285714, '#f24444'],
+                    [0.7857143, '#00b2a9'],
+                    [1, '#f24444']
+                  ]
+                }
+              },
+              splitLine: {
+                length: 20,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              axisTick: {
+                length: 15,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              title: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  fontStyle: 'italic',
+                  color: '#ffffff'
+                },
+                offsetCenter: [0, '100%']
+              },
+              detail: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  color: '#00f0b4'
+                }
+              },
+              data: [{ value: 0, name: 'SSD1' }]
+            },
+            {
+              name: '℃',
+              type: 'gauge',
+              center: ['30%', '50%'],
+              min: -40,
+              max: 100,
+              splitNumber: 14,
+              startAngle: 225,
+              endAngle: -45,
+              axisLine: {
+                lineStyle: {
+                  width: 20,
+                  color: [
+                    [0.285714, '#f24444'],
+                    [0.7857143, '#00b2a9'],
+                    [1, '#f24444']
+                  ]
+                }
+              },
+              splitLine: {
+                length: 20,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              axisTick: {
+                length: 15,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              title: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  fontStyle: 'italic',
+                  color: '#ffffff'
+                },
+                offsetCenter: [0, '100%']
+              },
+              detail: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  color: '#00f0b4'
+                }
+              },
+              data: [{ value: 0, name: 'SSD2' }]
+            },
+            {
+              name: '℃',
+              type: 'gauge',
+              center: ['50%', '50%'],
+              min: -40,
+              max: 100,
+              splitNumber: 14,
+              startAngle: 225,
+              endAngle: -45,
+              axisLine: {
+                lineStyle: {
+                  width: 20,
+                  color: [
+                    [0.285714, '#f24444'],
+                    [0.7857143, '#00b2a9'],
+                    [1, '#f24444']
+                  ]
+                }
+              },
+              splitLine: {
+                length: 20,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              axisTick: {
+                length: 15,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              title: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  fontStyle: 'italic',
+                  color: '#ffffff'
+                },
+                offsetCenter: [0, '100%']
+              },
+              detail: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  color: '#00f0b4'
+                }
+              },
+              data: [{ value: 0, name: 'SSD3' }]
+            },
+            {
+              name: '℃',
+              type: 'gauge',
+              center: ['70%', '50%'],
+              min: -40,
+              max: 100,
+              splitNumber: 14,
+              startAngle: 225,
+              endAngle: -45,
+              axisLine: {
+                lineStyle: {
+                  width: 20,
+                  color: [
+                    [0.285714, '#f24444'],
+                    [0.7857143, '#00b2a9'],
+                    [1, '#f24444']
+                  ]
+                }
+              },
+              splitLine: {
+                length: 20,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              axisTick: {
+                length: 15,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              title: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  fontStyle: 'italic',
+                  color: '#ffffff'
+                },
+                offsetCenter: [0, '100%']
+              },
+              detail: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  color: '#00f0b4'
+                }
+              },
+              data: [{ value: 0, name: 'SSD4' }]
+            },
+            {
+              name: '℃',
+              type: 'gauge',
+              center: ['90%', '50%'],
+              min: -40,
+              max: 100,
+              splitNumber: 14,
+              startAngle: 225,
+              endAngle: -45,
+              axisLine: {
+                lineStyle: {
+                  width: 20,
+                  color: [
+                    [0.285714, '#f24444'],
+                    [0.7857143, '#00b2a9'],
+                    [1, '#f24444']
+                  ]
+                }
+              },
+              splitLine: {
+                length: 20,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              axisTick: {
+                length: 15,
+                lineStyle: {
+                  color: 'auto'
+                }
+              },
+              title: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  fontStyle: 'italic',
+                  color: '#ffffff'
+                },
+                offsetCenter: [0, '100%']
+              },
+              detail: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 20,
+                  color: '#00f0b4'
+                }
+              },
+              data: [{ value: 0, name: 'SSD5' }]
+            }
+          ]
+        },
+        media: [
+          {
+            option: {
+              legend: {
+                right: 'center',
+                bottom: 0,
+                orient: 'horizontal'
+              },
+              series: [
+                {
+                  center: ['10%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['30%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['50%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['70%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['90%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                }
+              ]
+            }
+          },
+          {
+            query: {
+              minAspectRatio: 1,
+              minWidth: 1300
+            },
+            option: {
+              legend: {
+                right: 'center',
+                bottom: 0,
+                orient: 'horizontal'
+              },
+              series: [
+                {
+                  center: ['10%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['30%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['50%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['70%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                },
+                {
+                  center: ['90%', '50%'],
+                  radius: '75%',
+                  title: {
+                    fontSize: 20
+                  },
+                  detail: {
+                    fontSize: 20
+                  }
+                }
+              ]
+            }
+          },
+          {
+            query: {
+              minAspectRatio: 1,
+              maxWidth: 1300,
+              minWidth: 900
+            },
+            option: {
+              legend: {
+                right: 'center',
+                bottom: 0,
+                orient: 'horizontal'
+              },
+              series: [
+                {
+                  center: ['10%', '50%'],
+                  radius: '50%',
+                  title: {
+                    fontSize: 15
+                  },
+                  detail: {
+                    fontSize: 15
+                  }
+                },
+                {
+                  center: ['30%', '50%'],
+                  radius: '50%',
+                  title: {
+                    fontSize: 15
+                  },
+                  detail: {
+                    fontSize: 15
+                  }
+                },
+                {
+                  center: ['50%', '50%'],
+                  radius: '50%',
+                  title: {
+                    fontSize: 15
+                  },
+                  detail: {
+                    fontSize: 15
+                  }
+                },
+                {
+                  center: ['70%', '50%'],
+                  radius: '50%',
+                  title: {
+                    fontSize: 15
+                  },
+                  detail: {
+                    fontSize: 15
+                  }
+                },
+                {
+                  center: ['90%', '50%'],
+                  radius: '50%',
+                  title: {
+                    fontSize: 15
+                  },
+                  detail: {
+                    fontSize: 15
+                  }
+                }
+              ]
+            }
+          },
+          {
+            query: {
+              minAspectRatio: 1,
+              maxWidth: 900,
+              minWidth: 700
+            },
+            option: {
+              legend: {
+                right: 'center',
+                bottom: 0,
+                orient: 'horizontal'
+              },
+              series: [
+                {
+                  center: ['10%', '50%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['30%', '50%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['50%', '50%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['70%', '50%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['90%', '50%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                }
+              ]
+            }
+          },
+          {
+            query: {
+              minAspectRatio: 1,
+              maxWidth: 700,
+              minWidth: 550
+            },
+            option: {
+              legend: {
+                right: 'center',
+                bottom: 0,
+                orient: 'horizontal'
+              },
+              series: [
+                {
+                  center: ['25%', '25%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['50%', '25%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['75%', '25%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['33%', '75%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['66%', '75%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                }
+              ]
+            }
+          },
+          {
+            query: {
+              minAspectRatio: 1,
+              maxWidth: 550
+            },
+            option: {
+              legend: {
+                right: 'center',
+                bottom: 0,
+                orient: 'horizontal'
+              },
+              series: [
+                {
+                  center: ['20%', '25%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['50%', '25%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['80%', '25%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['33%', '75%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['66%', '75%'],
+                  radius: '40%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                }
+              ]
+            }
+          },
+          {
+            query: {
+              maxAspectRatio: 1
+            },
+            option: {
+              legend: {
+                right: 10,
+                top: '15%',
+                orient: 'vertical'
+              },
+              series: [
+                {
+                  center: ['30%', '20%'],
+                  radius: '30%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['70%', '20%'],
+                  radius: '30%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['30%', '50%'],
+                  radius: '30%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['70%', '50%'],
+                  radius: '30%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                },
+                {
+                  center: ['30%', '80%'],
+                  radius: '30%',
+                  title: {
+                    fontSize: 13
+                  },
+                  detail: {
+                    fontSize: 13
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      option_totalssds: {},
+      option_readworkloads: {
+        title: {
+          text: 'READ (MB/s)',
+          textStyle: {
+            color: '#ffffff'
+          },
+          left: 'center'
+        },
+        xAxis: {
+          show: false
+        },
+        yAxis: {
+          type: 'category',
+          axisLine: {
+            lineStyle: {
+              color: '#ffffff'
+            }
+          },
+          data: ['SSD1', 'SSD2', 'SSD3', 'SSD4', 'SSD5']
+        },
+        grid: {
+          left: 20,
+          right: 50,
+          bottom: 40,
+          top: 60,
+          containLabel: true
+        },
+        series: [
+          {
+            type: 'bar',
+            itemStyle: {
+              normal: {
+                color: '#dddddd'
+              }
+            },
+            barGap: '-100%',
+            data: [60, 60, 60, 60, 60]
+          },
+          {
+            type: 'bar',
+            itemStyle: {
+              normal: {
+                color: '#00b2a9'
+              }
+            },
+            label: {
+              normal: {
+                show: true,
+                position: 'insideLeft', // 底部文字显示设置
+                color: '#464655'
+              }
+            },
+            z: 10,
+            data: [0, 0, 0, 0, 0]
+          }
+        ]
+      },
+      option_writeworkloads: {
+        title: {
+          text: 'WRITE (MB/s)',
+          textStyle: {
+            color: '#ffffff'
+          },
+          left: 'center'
+        },
+        xAxis: {
+          show: false
+        },
+        yAxis: {
+          type: 'category',
+          axisLine: {
+            lineStyle: {
+              color: '#ffffff'
+            }
+          },
+          data: ['SSD1', 'SSD2', 'SSD3', 'SSD4', 'SSD5']
+        },
+        grid: {
+          left: 20,
+          right: 50,
+          bottom: 40,
+          top: 60,
+          containLabel: true
+        },
+        series: [
+          {
+            type: 'bar',
+            itemStyle: {
+              normal: {
+                color: '#dddddd'
+              }
+            },
+            barGap: '-100%',
+            data: [60, 60, 60, 60, 60]
+          },
+          {
+            type: 'bar',
+            itemStyle: {
+              normal: {
+                color: '#00b2a9'
+              }
+            },
+            label: {
+              normal: {
+                show: true,
+                position: 'insideLeft', // 底部文字显示设置
+                color: '#464655'
+              }
+            },
+            z: 10,
+            data: [0, 0, 0, 0, 0]
+          }
+        ]
+      }
+    },
+
+    created(){
+      self = this;
+      self.getDevices(this.gid, { pageSize: 10000, no: 1 });
+      setInterval(() => {
+        self.startAutoReport();
+      }, 1000);
+    },
+    methods: {
+      getTopData(pluginData,sort=false){
+         return DeviceOnApis.devices.get
+          .devicesTopN(5, pluginData, sort)
+      },
+      setOptionTotalssds(count,total){
+        this.$set(this,'option_totalssds',{ legend: {
+          right: 'center',
+          bottom: 0,
+          orient: 'horizontal'
+        },
+          series: [
+          {
+            type: 'gauge',
+            center: ['50%', '50%'],
+            startAngle: 225,
+            endAngle: -45,
+            radius: '75%',
+            splitNumber: 0,
+            axisLine: {
+              lineStyle: {
+                width: 40,
+                color: [
+                  [count / total,'#00b2a9'],
+                  [1, '#666666']
+                ]
+              }
+            },
+            axisLabel: {
+              formatter: function (v) {
+                switch (v + '') {
+                }
+              }
+            },
+            pointer: {
+              width: 0
+            },
+            title: {
+              textStyle: {
+                fontWeight: 'bolder',
+                fontSize: 15,
+                color: '#ffffff'
+              },
+              offsetCenter: [0, '20%']
+            },
+            detail: {
+              textStyle: {
+                fontWeight: 'bolder',
+                fontSize: 30,
+                color: '#00f0b4'
+              },
+              offsetCenter: [0, '80%'],
+              formatter: function (value) {
+                return value.toString().concat(' / ', total.toString());
+              }
+            },
+            data: [{ value: count, name: 'Online / Total SSD' }]
+          }
+        ]})
+      },
+      createTableData(deviceOptions){
+        vue=this
+        let DeviceData=[];
+        let total = 0
+       
+          for(let i = 0; i < deviceOptions.length; i++){
+          DeviceOnApis.data.get
+            .pluginLatestData(deviceOptions[i].did, deviceOptions[i].agentid, "SSDStatus")
+            .then(function (xhr) {
+              for (let ssd of xhr.data["SSDStatus"].Disk) {
+                  total++
+                  ssd.agentId = xhr.data["SSDStatus"].agentId
+                  ssd.connected= xhr.data["connected"]
+                  DeviceData.push(ssd)
+              }
+              let count = 0
+              let pushdevicData = []
+              for (let sddData of DeviceData) {
+              
+                let icon = '';
+                let device = deviceOptions.filter(x => x.agentid == sddData.agentId)
+                let name = device[0].name.concat(
+                  '-',
+                  sddData.bn
+                );
+
+                let ssd_status = sddData.e[4].v;
+                if(sddData.connected){
+                   if (ssd_status == 0) {
+                    count++
+                    icon = self.ICON[0];
+                  }
+                  if (ssd_status == 1) {
+                    count++
+                    icon = self.ICON[1];
+                  }
+                  if (ssd_status == 2) {
+                    count++
+                    icon = self.ICON[2];
+                  }
+                  if (ssd_status == -1 || ssd_status == -123) {
+                    icon = self.ICON[3];
+                  }
+                }else{
+                  icon = self.ICON[3];
+                }
+               
+                pushdevicData.push({
+                  status:
+                    sddData.e[4].v,
+                  device_name: name,
+                  capacity:
+                    sddData.e[5].sv,
+                  usage: sddData.e[6].v,
+                  temp: sddData.e[2].v,
+                  unexpect_power_cycle_count:
+                    sddData.e[1].v,
+                  workload_read:
+                    sddData.e[7].v,
+                  workload_write:
+                    sddData.e[8].v,
+                  group_name: '',
+                  iconClass: icon
+                });
+              }
+              vue.$set(vue, 'deviceData', pushdevicData)
+              vue.setOptionTotalssds(count, total)
+              vue.chart_totalssds = echarts.init(
+              vue.$refs.chart_totalssds, 'macarons'
+              ).setOption(vue.option_totalssds)
+            })
+          }
+        
+      },
+      addDiskName(pluginData,Diskname){
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
+        }
+      },
+      getWriteWorkloadAllData(oData){
+        let vue = this
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk1/WriteWorkload'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginWriteWorkloadDisk1Data', xhr.data)
+          vue.addDiskName(vue.pluginWriteWorkloadDisk1Data, 'Disk1')
+        })
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk2/WriteWorkload'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginWriteWorkloadDisk2Data', xhr.data)
+          vue.addDiskName(vue.pluginWriteWorkloadDisk2Data, 'Disk2')
+        })
+         vue.pluginWriteWorkloadSortedData = vue.pluginWriteWorkloadDisk1Data.data.concat(vue.pluginWriteWorkloadDisk2Data.data);
+        vue.pluginWriteWorkloadSortedData.sort((a, b) => b.value - a.value);
+        if (vue.pluginWriteWorkloadSortedData) {
+          let max = vue.pluginWriteWorkloadSortedData[0].value;
+          for (
+            let i = 0;
+            i < vue.pluginWriteWorkloadSortedData.length 
+            && i< 5;
+            i++
+          ) {
+             let name = vue.pluginWriteWorkloadSortedData[i].agent_name.concat('-', vue.pluginWriteWorkloadSortedData[i].DiskName)
+            let value = vue.pluginWriteWorkloadSortedData[i].value;
+            self._data.option_writeworkloads.yAxis.data[4 - i] = name;
+            self._data.option_writeworkloads.series[1].data[4 - i] = value;
+            for (let j = 0; j < 5; j++) {
+              if (max > 60)
+                self._data.option_writeworkloads.series[0].data[j] = max;
+            }
+          }
+        }//*/
+          this.chart_writeworkloads = echarts.init(
+          this.$refs.chart_writeworkloads, 'macarons'
+        ).setOption(this.option_writeworkloads)
+      },
+      getReadWorkloadAllData(oData){
+        let vue = this
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk1/ReadWorkload'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginReadWorkloadDisk1Data', xhr.data)
+          vue.addDiskName(vue.pluginReadWorkloadDisk1Data, 'Disk1')
+        })
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk2/ReadWorkload'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginReadWorkloadDisk2Data', xhr.data)
+          vue.addDiskName(vue.pluginReadWorkloadDisk2Data, 'Disk2')
+        })
+         vue.pluginReadWorkloadSortedData = vue.pluginReadWorkloadDisk1Data.data.concat(vue.pluginReadWorkloadDisk2Data.data);
+        vue.pluginReadWorkloadSortedData.sort((a, b) => b.value - a.value);   
+        if (vue.pluginReadWorkloadSortedData) {
+          let max = vue.pluginReadWorkloadSortedData[0].value;
+          for (
+            let i = 0;
+            i < vue.pluginReadWorkloadSortedData.length && i<5;
+            i++
+          ) {
+            let name = vue.pluginReadWorkloadSortedData[i].agent_name.concat('-', vue.pluginReadWorkloadSortedData[i].DiskName)
+            let value = vue.pluginReadWorkloadSortedData[i].value;
+            self._data.option_readworkloads.yAxis.data[4 - i] = name;
+            self._data.option_readworkloads.series[1].data[4 - i] = value;
+            for (let j = 0; j < 5; j++) {
+              if (max > 60)
+                self._data.option_readworkloads.series[0].data[j] = max;
+            }
+          }
+        }
+         this.chart_readworkloads = echarts.init(
+          this.$refs.chart_readworkloads, 'macarons'
+        ).setOption(this.option_readworkloads)
+      },
+      getTemperatureAllData(oData){
+         let vue = this
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk1/Temperature'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginTempDisk1Data', xhr.data)
+          vue.addDiskName(vue.pluginTempDisk1Data, 'Disk1')
+        })
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk2/Temperature'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginTempDisk2Data', xhr.data)
+          vue.addDiskName(vue.pluginTempDisk2Data, 'Disk2')
+        })
+        vue.pluginTempSortedData = vue.pluginTempDisk1Data.data.concat(vue.pluginTempDisk2Data.data);
+        vue.pluginTempSortedData.sort((a, b) => b.value - a.value);
+        
+        if (vue.pluginTempSortedData) {
+          for (let i = 0; i < vue.pluginTempSortedData.length && i<5; i++) {
+           let name = vue.pluginTempSortedData[i].agent_name.concat('-', vue.pluginTempSortedData[i].DiskName)
+            self._data.option_temp.baseOption.series[i].data[0].name = name;
+            self._data.option_temp.baseOption.series[i].data[0].value =
+              vue.pluginTempSortedData[i].value;
+          }
+        }
+         this.chart_temp = echarts.init(
+          this.$refs.chart_temp, 'macarons'
+        ).setOption(this.option_temp)
+      },
+      getUnexpectedPowerAllData(oData){
+        let vue = this
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk1/UnexpectedPowerLossCount'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginPowerLossDisk1Data', xhr.data)
+          vue.addDiskName(vue.pluginPowerLossDisk1Data,'Disk1')
+        })
+        this.getTopData(oData.plugin.concat(
+          '/Disk/Disk2/UnexpectedPowerLossCount'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginPowerLossDisk2Data', xhr.data)
+          vue.addDiskName(vue.pluginPowerLossDisk2Data, 'Disk2')
+        })
+         vue.pluginPowerLossSortedData = vue.pluginPowerLossDisk1Data.data.concat(vue.pluginPowerLossDisk2Data.data);
+        vue.pluginPowerLossSortedData.sort((a, b) => b.value - a.value);
+        
+        if (vue.pluginPowerLossSortedData) {
+          for (let i = 0; i < vue.pluginPowerLossSortedData.length && i<5; i++) {
+            let name = vue.pluginPowerLossSortedData[i].agent_name.concat('-', vue.pluginPowerLossSortedData[i].DiskName)
+            self._data.option_powerloss.yAxis.data[4 - i] = name;
+            self._data.option_powerloss.series[0].data[4 - i].name = name;
+            self._data.option_powerloss.series[0].data[4 - i].itemStyle.normal.color = self.COLOR[0];
+            self._data.option_powerloss.series[0].data[4 - i].value =
+              vue.pluginPowerLossSortedData[i].value;
+          }
+        }
+         vue.chart_powerloss = echarts.init(
+          vue.$refs.chart_powerloss, 'macarons'
+        ).setOption(vue.option_powerloss)
+      },
+      getLifetimeAllData(oData){
+         let vue=this
+          this.getTopData(oData.plugin.concat(
+          '/Disk/Disk1/Lifetime by workload'
+        )).then(function(xhr){
+            vue.$set(vue,'pluginLifetimeDisk1Data', xhr.data)
+            vue.addDiskName(vue.pluginLifetimeDisk1Data, 'Disk1')
+
+          })
+          this.getTopData(oData.plugin.concat(
+          '/Disk/Disk2/Lifetime by workload'
+        )).then(function (xhr) {
+          vue.$set(vue, 'pluginLifetimeDisk2Data', xhr.data)
+          vue.addDiskName(vue.pluginLifetimeDisk2Data, 'Disk2')
+        })
+           vue.pluginLifetimeSortedData = vue.pluginLifetimeDisk1Data.data.concat(vue.pluginLifetimeDisk2Data.data);
+           vue.pluginLifetimeSortedData.sort((a, b) => a.value - b.value);
+        if (vue.pluginLifetimeSortedData) {
+          for (let i = 0; i < vue.pluginLifetimeSortedData.length && i <5; i++) {
+            
+            let name = vue.pluginLifetimeSortedData[i].agent_name.concat('-', vue.pluginLifetimeSortedData[i].DiskName)
+            self._data.option_lifetime.yAxis.data[4 - i] = name;
+            self._data.option_lifetime.series[0].data[4 - i].name = name;
+            self._data.option_lifetime.series[0].data[4 - i].itemStyle.normal.color = self.COLOR[0];
+            self._data.option_lifetime.series[0].data[4 - i].value =
+              vue.pluginLifetimeSortedData[i].value;
+          }
+        }
+          vue.chart_lifetime = echarts.init(
+          vue.$refs.chart_lifetime, 'macarons'
+        ).setOption(vue.option_lifetime)
+      },
+      getDevices(gid, data) {
+        vue = this;
+        DeviceOnApis.devicegroups.get.devicesAll(data).then(function (xhr) {
+          if (xhr && xhr.data && xhr.data.devices) {
+
+            let devices = xhr.data.devices.sort(function (a, b) {
+              let statusA = 0;
+              let statusB = 0;
+              if (a.connected) {
+                if (a.normal) {
+                  statusA = 2;
+                } else {
+                  statusA = 1;
+                }
+              }
+              if (b.connected) {
+                if (b.normal) {
+                  statusB = 2;
+                } else {
+                  statusB = 1;
+                }
+              }
+              if (statusA < statusB) return 1;
+              else if (statusA > statusB) return -1;
+              else {
+                if (a.name < b.name) return -1;
+                else if (a.name > b.name) return 1;
+                else return 0;
+              }
+            });
+            let devicesP = []
+            devices.forEach(function (d, i) {
+              let iconColor;
+              if (d.connected) {
+                if (d.normal) {
+                  iconColor = 'rgb(117,181,51)';
+                } else {
+                  iconColor = 'rgb(253,147,87)';
+                }
+              } else {
+                iconColor = 'rgb(153,153,153)';
+              }
+              devicesP.push({
+                did: d.did,
+                name: d.name,
+                agentid: d.agentid,
+                connected: d.connected,
+                showIcon: true,
+                iconClass: 'fa fa-circle fa-lg',
+                iconColor: iconColor
+              });
+              if (d.connected) {
+                vue.did = d.did;
+                vue.agentid = d.agentid;
+                vue.name = d.name;
+                vue.index = i;
+              }
+            });
+            vue.$set(vue, 'deviceOptions', devicesP)
+          }
+        });
+      },
+      initChart: function () {
+       
+        // this.$set(this, 'chart_powerloss', echarts.init(
+        //   document.getElementById('chart_powerloss'),
+        //   'macarons'
+        // ))
+        
+        // this.$set(this, 'chart_temp', echarts.init(
+        //   document.getElementById('chart_temp'),
+        //   'macarons'
+        // ))
+
+        // this.$set(this, 'chart_lifetime', echarts.init(
+        //   document.getElementById('chart_lifetime'),
+        //   'macarons'
+        // ))
+
+        // this.$set(this, 'chart_totalssds', echarts.init(
+        //   document.getElementById('chart_totalssds'),
+        //   'macarons'
+        // ))
+
+        // this.$set(this, 'chart_readworkloads', echarts.init(
+        //   document.getElementById('chart_readworkloads'),
+        //   'macarons'
+        // ))
+
+        // this.$set(this, 'chart_writeworkloads', echarts.init(
+        //   document.getElementById('chart_writeworkloads'),
+        //   'macarons'
+        // ))
+        this.chart_lifetime = echarts.init(
+          this.$refs.chart_lifetime, 'macarons'
+        ).setOption(this.option_lifetime)
+
+         this.chart_powerloss = echarts.init(
+          this.$refs.chart_powerloss, 'macarons'
+        ).setOption(this.option_powerloss)
+
+         this.chart_temp = echarts.init(
+          this.$refs.chart_temp, 'macarons'
+        ).setOption(this.option_temp)
+
+         this.chart_totalssds = echarts.init(
+          this.$refs.chart_totalssds, 'macarons'
+        ).setOption(this.option_totalssds)
+
+         this.chart_readworkloads = echarts.init(
+          this.$refs.chart_readworkloads, 'macarons'
+        ).setOption(this.option_readworkloads)
+
+         this.chart_writeworkloads = echarts.init(
+          this.$refs.chart_writeworkloads, 'macarons'
+        ).setOption(this.option_writeworkloads)
+
+        // this.chart_lifetime.setOption(this.option_lifetime);
+        // this.chart_powerloss.setOption(this.option_powerloss);
+        // this.chart_temp.setOption(this.option_temp);
+        // this.chart_totalssds.setOption(this.option_totalssds);
+        // this.chart_readworkloads.setOption(this.option_readworkloads);
+        // this.chart_writeworkloads.setOption(this.option_writeworkloads);
+      },
+      resizeWindowHandler() {
+        this.chart_lifetime.setOption(this.option_lifetime);
+        this.chart_powerloss.setOption(this.option_powerloss);
+        this.chart_temp.setOption(this.option_temp);
+        this.chart_totalssds.setOption(this.option_totalssds);
+        this.chart_readworkloads.setOption(this.option_readworkloads);
+        this.chart_writeworkloads.setOption(this.option_writeworkloads);
+        this.__resizeHandler = debounce(() => {
+          if (vue.chart_powerloss) {
+            vue.chart_powerloss.resize();
+          }
+          if (vue.chart_temp) {
+            vue.chart_temp.resize();
+          }
+          if (vue.chart_lifetime) {
+            vue.chart_lifetime.resize();
+          }
+          if (vue.chart_totalssds) {
+            vue.chart_totalssds.resize();
+          }
+          if (vue.chart_readworkloads) {
+            vue.chart_readworkloads.resize();
+          }
+          if (vue.chart_writeworkloads) {
+            vue.chart_writeworkloads.resize();
+          }
+        }, 500);
+        window.addEventListener('resize', this.__resizeHandler);
+      },
+      destroyCharts: function () {
+        if (this.chart_lifetime) {
+          //  this.chart_lifetime.dispose();
+          // this.chart_lifetime = null;
+          this.$set(this, 'chart_lifetime', null)
+        }
+        if (this.chart_powerloss) {
+          this.$set(this, 'chart_powerloss', null)
+        }
+        if (this.chart_temp) {
+          this.$set(this, 'chart_temp', null)
+        }
+        if (this.chart_totalssds) {
+          this.$set(this, 'chart_totalssds', null)
+        }
+        if (this.chart_readworkloads) {
+          this.$set(this, 'chart_readworkloads', null)
+        }
+        if (this.chart_writeworkloads) {
+          this.$set(this, 'chart_writeworkloads', null)
+        }
+        this.$set(this, 'initChartCheck_lifetime', true)
+        this.$set(this, 'initChartCheck_powerloss', true)
+        this.$set(this, 'initChartCheck_temp', true)
+        this.$set(this, 'initChartCheck_totalssds', true)
+        this.$set(this, 'initChartCheck_readworkloads', true)
+        this.$set(this, 'initChartCheck_writeworkloads', true)
+       
+        window.removeEventListener('resize', this.__resizeHandler);
+      },
+      startAutoReport() {
+        count = 0;
+        // total = vue.deviceOptions.length;
+        for (let i = 0; i < vue.deviceOptions.length; i++) {
+          if (vue.deviceOptions[i].connected) {
+            let ajaxData = {
+              did: vue.deviceOptions[i].did,
+              agentid: vue.deviceOptions[i].agentid,
+              plugin: vue.plugin,
+              interval: 10,
+              timeout:1
+            };
+            DeviceOnApis.devicectrl.put
+              .intermittentReport(ajaxData)
+              .then(function (xhr) {
+                if (xhr && xhr.data && xhr.data.result) {
+                  self.getDeviceHandlerInfo(xhr.config.data);
+                }
+              })
+              .catch(function (error) { });
+            count++;
+          }
+        }
+        
+      },
+      getDeviceHandlerInfo(strData) {
+        let oData = JSON.parse(strData);
+        this.getLifetimeAllData(oData)
+        this.getUnexpectedPowerAllData(oData)
+        this.getTemperatureAllData(oData)
+        this.getReadWorkloadAllData(oData)
+        this.getWriteWorkloadAllData(oData)
+          
+        // self.resizeWindowHandler();
+      },
+      
+    },
+    watch: {
+      deviceOptions: function (vals) {
+        var values = vals;
+        this.createTableData(values)
+        this.startAutoReport();
+      }
+    }
+  });
+</script>
+
+</html>

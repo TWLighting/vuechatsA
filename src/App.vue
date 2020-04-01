@@ -23,7 +23,7 @@
         <b-col sm="10" md="10">
           <!-- first floor -->
           <b-row cols="2">
-            <b-col class="ssdcube" ref="barattr">
+            <b-col class="ssdcube">
               <Chartcube :title="titlegroup[0]" :items="items"></Chartcube>
             </b-col>
             <b-col class="ssdcube">
@@ -318,6 +318,90 @@ export default {
     this.testpush();
   },
   methods: {
+    setItem() {
+      this.$set(this, "items", [
+        {
+          statusLight: 2,
+          Status: 10,
+          DeviceName: "SSD D",
+          Capacity: "30GB",
+          Usage: "10%",
+          Temp: 100,
+          UnexpectedPowerCycleCount: 98,
+          WeeklyWorkload: 520,
+          GroupName: "HQ",
+          Coreanalyzer: null,
+          Upgrade: null,
+          Recovery: null,
+          Read: 520,
+          Write: 236
+        },
+        {
+          statusLight: 1,
+          Status: 60,
+          DeviceName: "SSD A",
+          Capacity: "30GB",
+          Usage: "60%",
+          Temp: 80,
+          UnexpectedPowerCycleCount: 98,
+          WeeklyWorkload: 520,
+          GroupName: "HQ",
+          Coreanalyzer: null,
+          Upgrade: null,
+          Recovery: null,
+          Read: 200,
+          Write: 800
+        },
+        {
+          statusLight: 1,
+          Status: 85,
+          DeviceName: "SSD B",
+          Capacity: "30GB",
+          Usage: "85%",
+          Temp: 30,
+          UnexpectedPowerCycleCount: 98,
+          WeeklyWorkload: 520,
+          GroupName: "HQ",
+          Coreanalyzer: null,
+          Upgrade: null,
+          Recovery: null,
+          Read: 300,
+          Write: 400
+        },
+        {
+          statusLight: 0,
+          Status: 60,
+          DeviceName: "SSD C",
+          Capacity: "30GB",
+          Usage: "60%",
+          Temp: -30,
+          UnexpectedPowerCycleCount: 98,
+          WeeklyWorkload: 520,
+          GroupName: "HQ",
+          Coreanalyzer: null,
+          Upgrade: null,
+          Recovery: null,
+          Read: 520,
+          Write: 130
+        },
+        {
+          statusLight: 2,
+          Status: 20,
+          DeviceName: "SSD E",
+          Capacity: "30GB",
+          Usage: "20%",
+          Temp: 20,
+          UnexpectedPowerCycleCount: 98,
+          WeeklyWorkload: 520,
+          GroupName: "HQ",
+          Coreanalyzer: null,
+          Upgrade: null,
+          Recovery: 10,
+          Read: 400,
+          Write: 200
+        }
+      ]);
+    },
     changeLine() {
       this.alertwindow.isLine = !this.alertwindow.isLine;
     },
@@ -393,6 +477,7 @@ export default {
   },
   created() {
     this.testscope();
+    this.setItem();
   },
   computed: {
     rows() {
@@ -552,88 +637,7 @@ export default {
         MAX: 100,
         MIN: -45
       },
-      items: [
-        {
-          statusLight: 2,
-          Status: 10,
-          DeviceName: "SSD D",
-          Capacity: "30GB",
-          Usage: "10%",
-          Temp: 100,
-          UnexpectedPowerCycleCount: 98,
-          WeeklyWorkload: 520,
-          GroupName: "HQ",
-          Coreanalyzer: null,
-          Upgrade: null,
-          Recovery: null,
-          Read: 520,
-          Write: 236
-        },
-        {
-          statusLight: 1,
-          Status: 60,
-          DeviceName: "SSD A",
-          Capacity: "30GB",
-          Usage: "60%",
-          Temp: 80,
-          UnexpectedPowerCycleCount: 98,
-          WeeklyWorkload: 520,
-          GroupName: "HQ",
-          Coreanalyzer: null,
-          Upgrade: null,
-          Recovery: null,
-          Read: 200,
-          Write: 800
-        },
-        {
-          statusLight: 1,
-          Status: 85,
-          DeviceName: "SSD B",
-          Capacity: "30GB",
-          Usage: "85%",
-          Temp: 30,
-          UnexpectedPowerCycleCount: 98,
-          WeeklyWorkload: 520,
-          GroupName: "HQ",
-          Coreanalyzer: null,
-          Upgrade: null,
-          Recovery: null,
-          Read: 300,
-          Write: 400
-        },
-        {
-          statusLight: 0,
-          Status: 60,
-          DeviceName: "SSD C",
-          Capacity: "30GB",
-          Usage: "60%",
-          Temp: -30,
-          UnexpectedPowerCycleCount: 98,
-          WeeklyWorkload: 520,
-          GroupName: "HQ",
-          Coreanalyzer: null,
-          Upgrade: null,
-          Recovery: null,
-          Read: 520,
-          Write: 130
-        },
-        {
-          statusLight: 2,
-          Status: 20,
-          DeviceName: "SSD E",
-          Capacity: "30GB",
-          Usage: "20%",
-          Temp: 20,
-          UnexpectedPowerCycleCount: 98,
-          WeeklyWorkload: 520,
-          GroupName: "HQ",
-          Coreanalyzer: null,
-          Upgrade: null,
-          Recovery: 10,
-          Read: 400,
-          Write: 200
-        }
-      ],
+      items: [],
       testitems: []
     };
   }

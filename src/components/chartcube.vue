@@ -26,17 +26,12 @@ export default {
       type: String,
       default: null
     },
-    btype: {
-      type: String,
-      default: null
-    },
     ifAlert: {
       type: Boolean,
       default: false
     }
   },
   components: { Barchart },
-
   methods: {
     statucolor(statusValue) {
       let color = "";
@@ -81,8 +76,6 @@ export default {
           }
         ]
       });
-
-      console.log(this.chartData);
     }
   },
   computed: {
