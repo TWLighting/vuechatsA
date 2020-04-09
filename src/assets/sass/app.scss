@@ -86,12 +86,11 @@ $cube-basic-h: auto;
 }
 .alertbox .more-content {
   position: relative;
-
-  width: 55%;
+  width: 60%;
   background: white;
   border-radius: 5px;
   margin: 40px auto;
-  padding: 20px;
+  padding: 10px;
 }
 .alertbox .setright {
   position: absolute;
@@ -139,4 +138,9 @@ $cube-basic-h: auto;
 
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   transition: opacity 0.5s;
+}
+.piereadgroup {
+  width: 33%;
+  height: 300px;
+  padding: 3px;
 }

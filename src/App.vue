@@ -24,7 +24,7 @@
           <!-- first floor -->
           <b-row cols="2">
             <b-col class="ssdcube">
-              <Chartcube :title="titlegroup[0]" :items="items"></Chartcube>
+              <Chartcube :title="titlegroup[0]" :items="items" v-if="items.length>0"></Chartcube>
             </b-col>
             <b-col class="ssdcube">
               <a class="point" @click="changeLine">
@@ -237,14 +237,13 @@
     <component :is="alertcompount" v-if="alertwindow.isLine" v-on:close-alert="changeLine">
       <Linecube :title="titlegroup[3]" :items="items"></Linecube>
     </component>
-    <!--piecompount-->
-    <!--J-NOTE Read圓餅圖未完成-->
+    <!--J-NOTE Read圓餅圖6種分析-->
     <component :is="alertcompount" v-if="alertwindow.isPieRead" v-on:close-alert="changePieRead">
-      <Piecube :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piecube>
+      <!-- <Piecube :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piecube>-->
+      <Piegroupread :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piegroupread>
     </component>
     <!--piecompount-->
     <!--J-NOTE Write圓餅圖未完成-->
-
     <component :is="alertcompount" v-if="alertwindow.isPieWrite" v-on:close-alert="changePieWrite">
       <Piecube :title="titlegroup[2]" :items="items" :pietype="'Write'"></Piecube>
     </component>
@@ -264,7 +263,7 @@ import Linecube from "./components/linecube";
 import Piecube from "./components/piecube";
 import Ssdprogress from "./components/ssdprogress";
 import Totalgauge from "./components/charts/totalgauge";
-
+import Piegroupread from "./components/piegroupread";
 const Testvuegauge = {
   props: {
     props: {
@@ -311,7 +310,8 @@ export default {
     Piecube,
     Ssdprogress,
     Totalgauge,
-    Testvuegauge
+    Testvuegauge,
+    Piegroupread
   },
   beforeMount() {},
   mounted() {
