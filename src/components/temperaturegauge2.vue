@@ -11,7 +11,7 @@
       <template v-if="items.length">
         <b-col v-for="item in Temperature" :key="item.id">
           <egauge
-            :style="{ width: '250px', height: '300px' }"
+            :style="{ width: '270px', height: '300px' }"
             :tempvalue="item.Temp"
             :name="item.DeviceName"
           ></egauge>

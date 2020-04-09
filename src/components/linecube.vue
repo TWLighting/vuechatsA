@@ -81,11 +81,26 @@ export default {
   data() {
     return {
       unexpectedsSSDs: [
-        { name: "SSD A", unexpectedday: [40, 40, 50, 80, 30, 50, 20] },
-        { name: "SSD B", unexpectedday: [40, 40, 80, 80, 10, 90, 10] },
-        { name: "SSD C", unexpectedday: [40, 40, 50, 80, 10, 22, 20] },
-        { name: "SSD D", unexpectedday: [40, 40, 50, 70, 55, 50, 0] },
-        { name: "SSD E", unexpectedday: [50, 0, 50, 80, 10, 80, 20] }
+        {
+          name: "DESKTOP-NIFFRRK-DISK1",
+          unexpectedday: [40, 40, 50, 80, 30, 50, 20]
+        },
+        {
+          name: "DESKTOP-NIFFRRK-DISK2",
+          unexpectedday: [40, 40, 80, 80, 10, 90, 10]
+        },
+        {
+          name: "DESKTOP-FVGFV-DISK2",
+          unexpectedday: [40, 40, 50, 80, 10, 22, 20]
+        },
+        {
+          name: "DESKTOP-FVGFV-DISK1",
+          unexpectedday: [40, 40, 50, 70, 55, 50, 0]
+        },
+        {
+          name: "DESKTOP-ggfgfgf-DISK2",
+          unexpectedday: [50, 0, 50, 80, 10, 80, 20]
+        }
       ],
       chartData: null,
       chartOptions: {

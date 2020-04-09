@@ -323,7 +323,7 @@ export default {
         {
           statusLight: 2,
           Status: 10,
-          DeviceName: "SSD D",
+          DeviceName: "DESKTOP-NIFFRRK-DISK1",
           Capacity: "30GB",
           Usage: "10%",
           Temp: 100,
@@ -339,7 +339,7 @@ export default {
         {
           statusLight: 1,
           Status: 60,
-          DeviceName: "SSD A",
+          DeviceName: "DESKTOP-NIFFRRK-DISK2",
           Capacity: "30GB",
           Usage: "60%",
           Temp: 80,
@@ -355,7 +355,7 @@ export default {
         {
           statusLight: 1,
           Status: 85,
-          DeviceName: "SSD B",
+          DeviceName: "DESKTOP-FVGFV-DISK2",
           Capacity: "30GB",
           Usage: "85%",
           Temp: 30,
@@ -371,7 +371,7 @@ export default {
         {
           statusLight: 0,
           Status: 60,
-          DeviceName: "SSD C",
+          DeviceName: "DESKTOP-FVGFV-DISK1",
           Capacity: "30GB",
           Usage: "60%",
           Temp: -30,
@@ -387,7 +387,7 @@ export default {
         {
           statusLight: 2,
           Status: 20,
-          DeviceName: "SSD E",
+          DeviceName: "DESKTOP-ggfgfgf-DISK2",
           Capacity: "30GB",
           Usage: "20%",
           Temp: 20,

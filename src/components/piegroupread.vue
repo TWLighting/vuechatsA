@@ -106,6 +106,9 @@ export default {
             display: true,
             position: "top"
           },
+          legend: {
+            display: false
+          },
           rotation: -0.7 * Math.PI
         });
       }
