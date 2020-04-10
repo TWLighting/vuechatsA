@@ -78,7 +78,6 @@
           <b-row cols="3">
             <b-col class="ssdcube">
               <a class="point" @click="changePieRead">
-                <!--TAG--->
                 <Ssdprogress :title="titlegroup[1]" :items="items" :btype="'Read'">
                   <b-col>
                     <h5>Read(MB/s)</h5>
@@ -96,29 +95,7 @@
               </a>
             </b-col>
             <b-col class="ssdcube">
-              <!-- <Gauge :style="{ padding: '5px' }">
-                <template v-slot:header>
-                  <div>
-                    <h5>{{ titlegroup[4] }}</h5>
-                    <hr size="1" width="100%" color="#ffffff" />
-                  </div>
-                </template>
-                <div class="inner-text">
-                  <p>Online/Total SSD</p>
-                </div>
-                <div class="inner-text">
-                  <span>{{Connected}}/{{Total}}</span>
-                </div>
-              </Gauge>-->
               <Totalgauge :title="titlegroup[4]" :items="items"></Totalgauge>
-              <!-- <Testvuegauge>
-                <template v-slot:header>
-                  <div>
-                    <h5>{{ titlegroup[4] }}</h5>
-                    <hr size="1" width="100%" color="#ffffff" />
-                  </div>
-                </template>
-              </Testvuegauge>-->
             </b-col>
           </b-row>
           <!-- table floor -->
@@ -155,7 +132,7 @@
                   </b-col>
                 </b-row>
               </b-form>
-              <!--J-TODO 在t-head中的七中一個欄位加入2個列下面的塞2欄-->
+              <!--J-NOTE 在t-head中的其中一個欄位加入2個列下面的塞2欄 完成-->
               <b-table
                 id="ssd-tb"
                 responsive
@@ -183,24 +160,33 @@
                     </b-col>
                   </b-row>
                 </template>
+                <!--J-TODO 表單小工具按鈕Coreanalyzer-->
                 <template v-slot:cell(Coreanalyzer)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
-                      <b-icon icon="alert-circle" class="Coreanalyzericon"></b-icon>
+                      <a class="point" @click="changeCoreanalyzer">
+                        <b-icon icon="alert-circle" class="Coreanalyzericon"></b-icon>
+                      </a>
                     </b-col>
                   </b-row>
                 </template>
+                <!--J-TODO 表單小工具按鈕Upgrade-->
                 <template v-slot:cell(Upgrade)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
-                      <b-icon icon="alert-circle" class="Recoveryicon"></b-icon>
+                      <a class="point" @click="changePieRead">
+                        <b-icon icon="alert-circle" class="Recoveryicon"></b-icon>
+                      </a>
                     </b-col>
                   </b-row>
                 </template>
+                <!--J-TODO 表單小工具按鈕Recovery-->
                 <template v-slot:cell(Recovery)="data">
                   <b-row class="text-center" style="font-size:24px;">
                     <b-col class="py-2 mb-1">
-                      <b-icon icon="arrow-repeat" class="Recoveryicon"></b-icon>
+                      <a class="point" @click="changePieRead">
+                        <b-icon icon="arrow-repeat" class="Recoveryicon"></b-icon>
+                      </a>
                     </b-col>
                   </b-row>
                 </template>
@@ -237,7 +223,7 @@
     <component :is="alertcompount" v-if="alertwindow.isLine" v-on:close-alert="changeLine">
       <Linecube :title="titlegroup[3]" :items="items"></Linecube>
     </component>
-    <!--J-NOTE Read圓餅圖6種分析-->
+    <!--J-TODO Read圓餅圖6種分析-->
     <component :is="alertcompount" v-if="alertwindow.isPieRead" v-on:close-alert="changePieRead">
       <!-- <Piecube :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piecube>-->
       <Piegroupread :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piegroupread>
@@ -246,6 +232,14 @@
     <!--J-NOTE Write圓餅圖未完成-->
     <component :is="alertcompount" v-if="alertwindow.isPieWrite" v-on:close-alert="changePieWrite">
       <Piecube :title="titlegroup[2]" :items="items" :pietype="'Write'"></Piecube>
+    </component>
+    <!--widgetCoreanalyzer-->
+    <component
+      :is="alertcompount"
+      v-if="alertwindow.isCoreanalyzer"
+      v-on:close-alert="changeCoreanalyzer"
+    >
+      <widgetCoreanalyzer :title="titlegroup[2]" :items="items" :pietype="'Write'"></widgetCoreanalyzer>
     </component>
   </div>
 </template>
@@ -264,6 +258,8 @@ import Piecube from "./components/piecube";
 import Ssdprogress from "./components/ssdprogress";
 import Totalgauge from "./components/charts/totalgauge";
 import Piegroupread from "./components/piegroupread";
+import Piechart from "./components/charts/peichart";
+
 const Testvuegauge = {
   props: {
     props: {
@@ -298,6 +294,135 @@ const Testvuegauge = {
     return { gaugevalue: 70 };
   }
 };
+const widgetCoreanalyzer = {
+  props: {
+    items: {
+      type: Array,
+      default: null
+    },
+    title: {
+      type: String,
+      default: null
+    },
+    pietype: {
+      type: String
+    }
+  },
+  components: { Piechart },
+  computed: {},
+  methods: {
+    statucolor(statusValue) {
+      let color = "";
+      if (statusValue >= 90) {
+        color = "#006666";
+      } else if (statusValue >= 80) {
+        color = "#008E8A";
+      } else if (statusValue >= 60) {
+        color = "#00B2A9";
+      } else if (statusValue >= 20) {
+        color = "#FF7B22";
+      } else {
+        color = "#E52828";
+      }
+      return color;
+    },
+    ssdoptionapi(sessorid) {
+      let api = "";
+      switch (sessorid) {
+        case "1":
+          api = "";
+          break;
+        case "2":
+          api = "";
+          break;
+        case "3":
+          api = "";
+          break;
+        case "4":
+          api = "";
+          break;
+        case "5":
+          api = "";
+          break;
+        case "6":
+          api = "";
+          break;
+      }
+      return api;
+    },
+    setpiedata() {
+      for (let option of this.ssdoptions) {
+        let labels = [];
+        let backgroundColor = [];
+        let borderColor = [];
+        let data = [];
+        let api = this.ssdoptionapi(option.name);
+        // for API的資料
+        for (let ssdrow of this.items) {
+          let barcolor = this.statucolor(ssdrow.Status);
+          labels.push(ssdrow.DeviceName);
+          data.push(ssdrow[this.pietype]);
+          backgroundColor.push(barcolor);
+          borderColor.push(barcolor);
+        }
+        // 創建charts圖形的必要屬性
+        option.chartData = Object.assign({}, option.chartData, {
+          labels: labels,
+          borderSkipped: "bottom",
+          datasets: [
+            {
+              fill: true,
+              label: this.title,
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
+              data: data
+            }
+          ]
+        });
+        option.chartOptions = Object.assign({}, option.chartOptions, {
+          title: {
+            text: option.name,
+            display: true,
+            position: "top"
+          },
+          legend: {
+            display: false
+          },
+          rotation: -0.7 * Math.PI
+        });
+      }
+    }
+  },
+  created() {
+    this.setpiedata();
+  },
+  template: `<div>
+    <b-row class="d-flex">
+      <div class="piereadgroup" v-for="(option,index) in ssdoptions" :key="index">
+        <!--
+       <h5>{{option.name}}</h5>
+        <hr size="1" width="100%" color="#ffffff" />
+        -->
+        <Piechart :chartData="option.chartData" :options="option.chartOptions"></Piechart>
+      </div>
+    </b-row>
+  </div>`,
+  data() {
+    return {
+      // 固定按照功能分配API
+      ssdoptions: [
+        { name: "Coreanalyzer1", chartData: null, chartOptions: null },
+        { name: "Coreanalyzer2", chartData: null, chartOptions: null },
+        { name: "Coreanalyzer3", chartData: null, chartOptions: null },
+        { name: "Coreanalyzer4", chartData: null, chartOptions: null },
+        { name: "Coreanalyzer5", chartData: null, chartOptions: null },
+        { name: "Coreanalyzer6", chartData: null, chartOptions: null }
+      ]
+    };
+  }
+};
+const widgetRecovery = {};
+const widgetUpgrade = {};
 export default {
   components: {
     Sidebar,
@@ -311,7 +436,8 @@ export default {
     Ssdprogress,
     Totalgauge,
     Testvuegauge,
-    Piegroupread
+    Piegroupread,
+    widgetCoreanalyzer
   },
   beforeMount() {},
   mounted() {
@@ -414,6 +540,15 @@ export default {
     changePieWrite() {
       this.alertwindow.isPieWrite = !this.alertwindow.isPieWrite;
     },
+    changeCoreanalyzer() {
+      this.alertwindow.isCoreanalyzer = !this.alertwindow.isCoreanalyzer;
+    },
+    changeUpgrade() {
+      this.alertwindow.isUpgrade = !this.alertwindow.isUpgrade;
+    },
+    changeRecovery() {
+      this.alertwindow.isRecovery = !this.alertwindow.isRecovery;
+    },
     //J-NOTE 可能要放進混入MIXIN之中
     statucolor(statusValue) {
       let color = "";
@@ -498,8 +633,11 @@ export default {
         isBar: false,
         isLine: false,
         isPieRead: false,
+        isPieWrite: false,
         isTempLine: false,
-        isPieWrite: false
+        isCoreanalyzer: false,
+        isUpgrade: false,
+        isRecovery: false
       },
       titlegroup: [
         "5 Riskiest SSDs",
