@@ -75,8 +75,8 @@
             </b-col>
           </b-row>
           <!-- third floor -->
-          <b-row cols="3">
-            <b-col class="ssdcube">
+          <b-row>
+            <b-col cols="12" md="4" class="ssdcube">
               <a class="point" @click="changePieRead">
                 <Ssdprogress :title="titlegroup[1]" :items="items" :btype="'Read'">
                   <b-col>
@@ -85,7 +85,7 @@
                 </Ssdprogress>
               </a>
             </b-col>
-            <b-col class="ssdcube">
+            <b-col cols="12" md="4" class="ssdcube">
               <a class="point" @click="changePieWrite">
                 <Ssdprogress :title="titlegroup[2]" :items="items" :btype="'Write'">
                   <b-col>
@@ -94,7 +94,7 @@
                 </Ssdprogress>
               </a>
             </b-col>
-            <b-col class="ssdcube">
+            <b-col cols="12" md="4" class="ssdcube">
               <Totalgauge :title="titlegroup[4]" :items="items"></Totalgauge>
             </b-col>
           </b-row>
