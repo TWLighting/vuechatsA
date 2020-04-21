@@ -106,6 +106,7 @@ export default {
           xAxes: [
             {
               ticks: {
+                beginAtZero: true,
                 fontColor: this.ifAlert ? "rgba(0,0,0,0.5)" : "#ffffff",
                 stepSize: 20, // 設定 x 軸的數字級距
                 z: 10

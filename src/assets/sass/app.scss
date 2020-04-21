@@ -1,13 +1,3 @@
-$cube-basic-h: auto;
-
-@mixin margin-setting($updown, $leftright) {
-  margin: $updown $leftright;
-}
-#app {
-  text-align: center;
-  color: #2c3e50;
-  overflow: hidden;
-}
 .cubebackground {
   background: #464655;
 }
@@ -15,36 +5,40 @@ $cube-basic-h: auto;
   position: relative;
   box-sizing: border-box;
 }
-
+.set-title {
+  text-align: left;
+  color: #00f0b4;
+}
 .ssdcube {
-  @extend .cubebackground;
+  background: #464655;
   display: inline-block;
   border: solid #ffffff 10px;
   padding: 1rem;
-  height: $cube-basic-h;
+  height: auto;
   color: #ffffff;
 }
 
 .temperaturelist {
-  @extend .cubebackground;
+  background: #464655;
   display: inline-block;
   height: auto;
   border: solid #ffffff 10px;
   color: #ffffff;
-  padding: 2rem;
+  padding: 1rem;
 }
-.ssdtable {
+.ssdtable > table {
   overflow: hidden;
+  text-align: center;
 }
 .detailtable {
-  @extend .cubebackground;
+  background: #464655;
   width: 100%;
   height: auto;
   border: solid #ffffff 10px;
   padding: 10px;
 }
 .ssdsidebar {
-  @extend .cubebackground;
+  background: #464655;
   height: 100%;
   margin-top: 10px;
 }
@@ -54,7 +48,15 @@ $cube-basic-h: auto;
   color: #ffffff;
   word-wrap: break-word;
 }
-.ssdtd {
+.ssdseetingDeviceName {
+  background: #006666;
+  border: 1px solid #ffffff;
+  color: #00f0b4;
+  word-wrap: break-word;
+}
+.table .ssdtd {
+  padding: 0.25rem;
+  vertical-align: middle;
   background: #464655;
 }
 .Recoveryicon {
@@ -66,13 +68,13 @@ $cube-basic-h: auto;
 .inner-text {
   height: auto;
   width: 100%;
-  p {
-    margin-top: -4rem;
-  }
-  span {
-    max-width: 100px;
-    color: #00b2a9;
-  }
+}
+.inner-text > p {
+  margin-top: -4rem;
+}
+.inner-text > span {
+  max-width: 100px;
+  color: #00f0b4;
 }
 .alertbox {
   width: 100%;
@@ -81,8 +83,8 @@ $cube-basic-h: auto;
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 100;
   background: rgba(98, 98, 98, 0.8);
+  z-index: 100;
 }
 .alertbox .more-content {
   position: relative;
@@ -90,7 +92,7 @@ $cube-basic-h: auto;
   background: white;
   border-radius: 5px;
   margin: 40px auto;
-  padding: 10px;
+  padding: 20px;
 }
 .alertbox .setright {
   position: absolute;
@@ -106,13 +108,19 @@ $cube-basic-h: auto;
 .bgray {
   background-color: #464655;
 }
-//自訂Progress
+/*自訂Progress8*/
 .myProgress {
   width: 100%;
+  background-color: #5a5a6e;
 }
 .mybar {
   padding: 1px 0;
   text-align: center;
+  color: #ffffff;
+}
+.mybar-right {
+  padding: 1px 0;
+  text-align: right;
   color: #ffffff;
 }
 .triangle-top {
@@ -122,7 +130,7 @@ $cube-basic-h: auto;
   height: 0;
   border-style: solid;
   border-width: 0 9px 18px 9px;
-  border-color: transparent transparent #00b2a9 transparent;
+  border-color: transparent transparent #00f0b4 transparent;
   cursor: pointer;
 }
 .triangle-bottom {
@@ -132,12 +140,20 @@ $cube-basic-h: auto;
   height: 0;
   border-style: solid;
   border-width: 18px 9px 0 9px;
-  border-color: #00b2a9 transparent transparent transparent;
+  border-color: #00f0b4 transparent transparent transparent;
   cursor: pointer;
 }
 
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   transition: opacity 0.5s;
+}
+/*egauge*/
+.egauge-title {
+  position: absolute;
+  top: 80%;
+  left: 12%;
+  font-size: 1.25rem;
+  font-weight: 500;
 }
 .piereadgroup {
   width: 33%;

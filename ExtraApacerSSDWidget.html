@@ -1,287 +1,209 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Addin Module</title>
-    <!-- css plugins -->
-    <link
-      rel="stylesheet"
-      href="/static/addins/SampleAddin/css/custom_echart.css"
-    />
-    <!-- Load required Bootstrap and BootstrapVue CSS -->
-    <link
-      type="text/css"
-      rel="stylesheet"
-      href="/static/addins/SampleAddin/css/extraApacerSSD.css"
-    />
-    <link
-      type="text/css"
-      rel="stylesheet"
-      href="/static/addins/SampleAddin/css/bootstrap.min.css"
-    />
-    <link
-      type="text/css"
-      rel="stylesheet"
-      href="/static/addins/SampleAddin/css/bootstrap-vue.min.css"
-    />
 
-    <!-- javascript plugins -->
-    <script src="/static/addins/SampleAddin/libs/vue-2.6.10.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/axios.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/sweetalert2.all.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/vue-sweetalert2-2.1.1.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/echarts-4.3.0.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/vue-echarts.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/moment-2.24.0.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/vue-single-select.min.js"></script>
-    <!-- Load Vue followed by vue-chartjs -->
-    <script src="/static/addins/SampleAddin/libs/Chart.min.js"></script>
-    <script src="/static/addins/SampleAddin/libs/vue-chartjs.min.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Addin Module</title>
+  <!-- css plugins -->
+  <link rel="stylesheet" href="/static/addins/SampleAddin/css/custom_echart.css" />
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="/static/addins/SampleAddin/css/extraApacerSSD.css" />
+  <link type="text/css" rel="stylesheet" href="/static/addins/SampleAddin/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="/static/addins/SampleAddin/css/bootstrap-vue.min.css" />
 
-    <!-- javascript common plugins -->
-    <script src="/static/addins/SampleAddin/js/RMMGlobal.js"></script>
-    <script src="/static/addins/SampleAddin/js/DeviceOnApis.js"></script>
-    <script src="/static/addins/SampleAddin/js/util.js"></script>
-    <!-- Load polyfills to support older browsers -->
-    <script
-      src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
-      crossorigin="anonymous"
-    ></script>
-    <!-- Load Vue followed by BootstrapVue -->
-    <script src="/static/addins/SampleAddin/libs/bootstrap-vue.min.js"></script>
-    <!-- Load the following for BootstrapVueIcons support -->
-    <script src="/static/addins/SampleAddin/libs/bootstrap-vue-icons.min.js"></script>
-  </head>
-  <style>
-    #app {
-      text-align: center;
-      color: #2c3e50;
-      overflow: hidden;
-    }
-  </style>
-  <body>
-    <div id="app">
-      <b-container fluid class="bv-example-row">
-        <!-- first floor -->
-        <b-row cols="2">
-          <b-col class="ssdcube">
-            <Chartcube :title="titlegroup[0]" :items="item_riskiest_sort"></Chartcube>
-          </b-col>
-          <b-col class="ssdcube">
-            <a class="point" @click="changeLine">
-              <Chartcube
-                :title="titlegroup[3]"
-                :items="DeviceDisks"
-              ></Chartcube>
-            </a>
-          </b-col>
-        </b-row>
-        <!-- second floor -->
-        <b-row>
-          <b-col class="temperaturelist justify-content-center">
-            <a class="point" @click="changeLine">
-              <Temperaturegauge
-                :title="titlegroup[5]"
-                :items="DeviceDisks"
-                :controltri="istriforTemp"
-                @chiesecolor="statucolor"
-                @changeTriangle="controlTriangle"
-              >
-              </Temperaturegauge>
-            </a>
-          </b-col>
-        </b-row>
-        <!-- third floor -->
-        <b-row cols="3">
-          <b-col class="ssdcube">
-            <a class="point" @click="changePieRead">
-              <!--TAG--->
-              <Ssdprogress
-                :title="titlegroup[1]"
-                :items="DeviceDisks"
-                :btype="'Read'"
-              >
-                <b-col>
-                  <h5>Read(MB/s)</h5>
-                </b-col>
-              </Ssdprogress>
-            </a>
-          </b-col>
-          <b-col class="ssdcube">
-            <a class="point" @click="changePieWrite">
-              <Ssdprogress
-                :title="titlegroup[2]"
-                :items="DeviceDisks"
-                :btype="'Write'"
-              >
-                <b-col>
-                  <h5>Write(MB/s)</h5>
-                </b-col>
-              </Ssdprogress>
-            </a>
-          </b-col>
-          <b-col class="ssdcube">
-            <Gauge :title="titlegroup[4]" :items="DeviceDisks"></Gauge>
-          </b-col>
-        </b-row>
-        <!-- table floor -->
-        <b-row>
-          <b-col class="detailtable">
-            <b-form :style="{ color: '#00b2a9' }">
-              <b-row>
-                <b-col sm="2" md="2">
-                  <b-form-group label="Select Groups" label-for="acountList">
-                    <b-form-select
-                      id="Select"
-                      v-model="tableFrom.groups.value"
-                      :options="tableFrom.groups.groupsOptions"
-                    >
-                    </b-form-select>
-                  </b-form-group>
-                </b-col>
-                <b-col sm="2" md="2">
-                  <b-form-group label="Select Status" label-for="Status">
-                    <b-form-select
-                      id="Status"
-                      v-model="tableFrom.status.value"
-                      :options="tableFrom.status.statusOptions"
-                    >
-                    </b-form-select>
-                  </b-form-group>
-                </b-col>
-                <b-col sm="2" md="2">
-                  <b-form-group label="Keyword Search" label-for="Keyword">
-                    <b-form-input
-                      id="Keyword"
-                      v-model="tableFrom.keyword.value"
-                      placeholder="ALL"
-                    ></b-form-input>
-                  </b-form-group>
+  <!-- javascript plugins -->
+  <script src="/static/addins/SampleAddin/libs/vue-2.6.10.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/axios.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/sweetalert2.all.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-sweetalert2-2.1.1.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/echarts-4.3.0.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-echarts.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/moment-2.24.0.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-single-select.min.js"></script>
+  <!-- Load Vue followed by vue-chartjs -->
+  <script src="/static/addins/SampleAddin/libs/Chart.min.js"></script>
+  <script src="/static/addins/SampleAddin/libs/vue-chartjs.min.js"></script>
+
+  <!-- javascript common plugins -->
+  <script src="/static/addins/SampleAddin/js/RMMGlobal.js"></script>
+  <script src="/static/addins/SampleAddin/js/DeviceOnApis.js"></script>
+  <script src="/static/addins/SampleAddin/js/util.js"></script>
+  <!-- Load polyfills to support older browsers -->
+  <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+    crossorigin="anonymous"></script>
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="/static/addins/SampleAddin/libs/bootstrap-vue.min.js"></script>
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="/static/addins/SampleAddin/libs/bootstrap-vue-icons.min.js"></script>
+</head>
+<style>
+  #app {
+    text-align: center;
+    color: #2c3e50;
+    overflow: hidden;
+  }
+</style>
+
+<body>
+  <div id="app">
+    <b-container fluid class="bv-example-row">
+      <!-- first floor -->
+      <b-row cols="2">
+        <b-col class="ssdcube">
+          <Riskchartcube :title="titlegroup[0]" :deviceOptions="deviceOptions"></Riskchartcube>
+        </b-col>
+        <b-col class="ssdcube">
+          <a class="point" @click="changePowerloss">
+            <Unexpectedchartcube :title="titlegroup[3]" :deviceOptions="deviceOptions"></Unexpectedchartcube>
+          </a>
+        </b-col>
+      </b-row>
+      <!-- second floor -->
+      <b-row>
+        <b-col class="temperaturelist justify-content-center">
+          <a class="point" @click="changeTemperature">
+            <Temperaturegauge :title="titlegroup[5]" :deviceOptions="deviceOptions" :controltri="istriforTemp"
+              @chiesecolor="statucolor">
+            </Temperaturegauge>
+          </a>
+        </b-col>
+      </b-row>
+      <!-- third floor -->
+      <b-row cols="3">
+        <b-col class="ssdcube">
+          <a class="point" @click="changePieRead">
+            <!--TAG--->
+            <Readworkprogress :title="titlegroup[1]" :deviceOptions="deviceOptions"
+              :testReadWorkloadData="ReadWorkloadData">
+              <b-col>
+                <h5>Read(MB/s)</h5>
+              </b-col>
+            </Readworkprogress>
+          </a>
+        </b-col>
+        <b-col class="ssdcube">
+          <Writeworkprogress @getpiedata="clickWriteBar" :title="titlegroup[2]" :deviceOptions="deviceOptions">
+            <b-col>
+              <h5>Write(MB/s)</h5>
+            </b-col>
+          </Writeworkprogress>
+        </b-col>
+        <b-col class="ssdcube ">
+          <h5 class="set-title">{{ this.titlegroup[4]}}</h5>
+          <hr size="1" width="100%" color="#ffffff" />
+          <b-row>
+            <b-col class="d-flex justify-content-center">
+              <gague :style="{width:'300px',height:'300px'}" :options="option_totalssds" />
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+      <!-- table floor -->
+      <b-row>
+        <b-col class="detailtable">
+          <b-form :style="{ color: '#00f0b4' }">
+            <b-row>
+              <b-col sm="2" md="2">
+                <b-form-group label="Select Groups" label-for="acountList">
+                  <b-form-select id="Select" v-model="tableFrom.groups.value" :options="tableFrom.groups.groupsOptions">
+                  </b-form-select>
+                </b-form-group>
+              </b-col>
+              <b-col sm="2" md="2">
+                <b-form-group label="Select Status" label-for="Status">
+                  <b-form-select id="Status" v-model="tableFrom.status.value" :options="tableFrom.status.statusOptions">
+                  </b-form-select>
+                </b-form-group>
+              </b-col>
+              <b-col sm="2" md="2">
+                <b-form-group label="Keyword Search" label-for="Keyword">
+                  <b-form-input id="Keyword" v-model="tableFrom.keyword.value" placeholder="ALL"></b-form-input>
+                </b-form-group>
+              </b-col>
+            </b-row>
+          </b-form>
+          <b-table id="ssd-tb" responsive striped hover :fields="fields" :items="deviceDisks" :per-page="perPage"
+            :current-page="currentPage" class="ssdtable">
+            <template v-slot:thead-top="data">
+              <b-tr rowspan="2">
+                <b-th class="ssdseeting" colspan="6"></b-th>
+                <b-th class="ssdseeting" colspan="2">Weekly Workload(GB)</b-th>
+                <b-th class="ssdseeting" colspan="4"></b-th>
+              </b-tr>
+            </template>
+
+            <template v-slot:cell(Status)="data">
+              <b-row class="text-center" style="font-size: 24px;">
+                <b-col class="py-2 mb-1">
+                  <!--J-DONE：處理圓點燈號顏色-->
+                  <b-icon icon="circle-fill" :style="{ color: setlightcolor(data.item) }"></b-icon>
                 </b-col>
               </b-row>
-            </b-form>
-                <!--J-TODO 在t-head中的其中一個欄位加入2個列下面的塞2欄-->
-            <b-table
-              id="ssd-tb"
-              responsive
-              striped
-              hover
-              :fields="fields"
-              :items="DeviceDisks"
-              :per-page="perPage"
-              :current-page="currentPage"
-              class="ssdtable"
-            >
-              <template v-slot:thead-top="data">
-                <b-tr rowspan="2">
-                  <b-th class="ssdseeting" colspan="6"></b-th>
-                  <b-th class="ssdseeting" colspan="2"
-                    >Weekly Workload(GB)</b-th
-                  >
-                  <b-th class="ssdseeting" colspan="4"></b-th>
-                </b-tr>
-              </template>
+            </template>
+            <template v-slot:cell(Coreanalyzer)="data">
+              <b-row class="text-center" style="font-size: 24px;">
+                <b-col class="py-2 mb-1">
+                  <b-icon icon="alert-circle" class="Coreanalyzericon"></b-icon>
+                </b-col>
+              </b-row>
+            </template>
+            <template v-slot:cell(Upgrade)="data">
+              <b-row class="text-center" style="font-size: 24px;">
+                <b-col class="py-2 mb-1">
+                  <b-icon icon="alert-circle" class="Recoveryicon"></b-icon>
+                </b-col>
+              </b-row>
+            </template>
+            <template v-slot:cell(Recovery)="data">
+              <b-row class="text-center" style="font-size:24px;">
+                <b-col class="py-2 mb-1">
+                  <b-icon icon="arrow-repeat" class="Recoveryicon"></b-icon>
+                </b-col>
+              </b-row>
+            </template>
+          </b-table>
+          <!--J-NOTE 完成基本分頁功能 看是否要自訂頁數功能-->
+          <b-pagination pills size="sm" align="center" v-model="currentPage" :total-rows="totalRow" :per-page="perPage"
+            aria-controls="ssd-tb"></b-pagination>
+        </b-col>
+      </b-row>
+    </b-container>
 
-              <template v-slot:cell(Status)="data">
-                <b-row class="text-center" style="font-size: 24px;">
-                  <b-col class="py-2 mb-1">
-                    <!--J-DONE：處理圓點燈號顏色-->
-                    <b-icon
-                      icon="circle-fill"
-                      :style="{ color: statucolor(data.value) }"
-                    ></b-icon>
-                  </b-col>
-                </b-row>
-              </template>
-              <template v-slot:cell(Coreanalyzer)="data">
-                <b-row class="text-center" style="font-size: 24px;">
-                  <b-col class="py-2 mb-1">
-                    <b-icon
-                      icon="alert-circle"
-                      class="Coreanalyzericon"
-                    ></b-icon>
-                  </b-col>
-                </b-row>
-              </template>
-              <template v-slot:cell(Upgrade)="data">
-                <b-row class="text-center" style="font-size: 24px;">
-                  <b-col class="py-2 mb-1">
-                    <b-icon icon="alert-circle" class="Recoveryicon"></b-icon>
-                  </b-col>
-                </b-row>
-              </template>
-              <template v-slot:cell(Recovery)="data">
-                <b-row class="text-center" style="font-size:24px;">
-                  <b-col class="py-2 mb-1">
-                    <b-icon icon="arrow-repeat" class="Recoveryicon"></b-icon>
-                  </b-col>
-                </b-row>
-              </template>
-            </b-table>
-            <!--J-NOTE 完成基本分頁功能 看是否要自訂頁數功能-->
-            <b-pagination
-              pills
-              size="sm"
-              align="center"
-              v-model="currentPage"
-              :total-rows="ssd_total"
-              :per-page="perPage"
-              aria-controls="ssd-tb"
-            ></b-pagination>
-          </b-col>
-        </b-row>
-      </b-container>
+    <!--J-NOTE 彈出組件的內容要依照點進去的內容顯示資料 完成-->
 
-      <!--J-NOTE 彈出組件的內容要依照點進去的內容顯示資料 完成-->
-      
-      </component>
-      <!--Linecompount-->
-      <component
-        :is="alertcompount"
-        v-if="isLine"
-        v-on:close-alert="changeLine"
-      >
-        <Linecube :title="titlegroup[3]" :items="DeviceDisks"></Linecube>
-      </component>
-      <!--piecompount-->
-      <!--J-NOTE Read圓餅圖未完成-->
-      <component
-        :is="alertcompount"
-        v-if="isPieRead"
-        v-on:close-alert="changePieRead"
-      >
-        <Piecube
-          :title="titlegroup[1]"
-          :items="DeviceDisks"
-          :pietype="'Read'"
-        ></Piecube>
-      </component>
-      <!--piecompount-->
-      <!--J-NOTE Write圓餅圖未完成-->
-      <component
-        :is="alertcompount"
-        v-if="isPieWrite"
-        v-on:close-alert="changePieWrite"
-      >
-        <Piecube
-          :title="titlegroup[2]"
-          :items="DeviceDisks"
-          :pietype="'Write'"
-        ></Piecube>
-      </component>
-    </div>
-  </body>
+    </component>
+    <!--Linecompount-powerlosscount-->
+    <component :is="alertcompount" v-if="alertwindow.ispowerlossLine" v-on:close-alert="changePowerloss">
+      <Powerlosscountlinecube :title="titlegroup[3]" :deviceOptions="deviceOptions"></Powerlosscountlinecube>
+    </component>
+    <!--Linecompount-Temperature-->
+    <component :is="alertcompount" v-if="alertwindow.isTemperatureLine" v-on:close-alert="changeTemperature">
+      <Temperaturelinecube :title="titlegroup[5]" :deviceOptions="deviceOptions"></Temperaturelinecube>
+    </component>
+    <!--piecompount-->
+    <!--J-NOTE Read圓餅圖未完成-->
+    <component :is="alertcompount" v-if="isPieRead" v-on:close-alert="changePieRead">
+      <Readloadpiecube :title="titlegroup[1]"></Readloadpiecube>
+    </component>
+    <!--piecompount-->
+    <!--J-NOTE Write圓餅圖未完成-->
+    <component :is="alertcompount" v-if="isPieWrite" v-on:close-alert="changePieWrite">
+      <Piecube :title="titlegroup[2]" :rowpiedata='rowpiedata'></Piecube>
+    </component>
+  </div>
+</body>
+
 </html>
 <script>
   //mixin method
   var mixin_fn = {
     methods: {
-      statucolor(ssd) {
+      setlightcolor(ssd) {
         let color = ""
-        if (ssd.connected) {
+        if (ssd.Connected) {
           if (ssd.Status == 0) {
-            color = "#006666"
+            color = "#00f0b4"
           }
           if (ssd.Status == 1) {
             color = "#008E8A"
@@ -290,20 +212,50 @@
             color = "#00B2A9"
           }
           if (ssd.Status == -1 || ssd.Status == -123) {
-            color = "#E52828"
+            color = "#999999"
           }
+        } else {
+          color = "#999999"
+        }
+        return color
+      },
+      statucolor(value) {
+        let color = ""
+        if (value >= 90) {
+          color = "#006666"
+        } else if (value >= 80) {
+          color = "#008E8A"
+        } else if (value >= 60) {
+          color = "#00B2A9"
+        } else if (value >= 20) {
+          color = "#FF7B22"
         } else {
           color = "#E52828"
         }
         return color
       },
-      deviceapi(postdata, sort = false) {
-        DeviceOnApis.devices.get
-          .devicesTopN(5, postdata, sort)
-          .then(function(xhr) {
-            return xhr.data
-          })
-          .catch(function(error) {})
+      setBarColor(value) {
+        let color = ""
+        if (value >= 90) {
+          color = "#006666"
+        } else if (value >= 80) {
+          color = "#008E8A"
+        } else if (value >= 60) {
+          color = "#00B2A9"
+        } else if (value >= 20) {
+          color = "#FF7B22"
+        } else {
+          color = "#E52828"
+        }
+        return color
+      },
+      getTopData(pluginData, sort = false) {
+        return DeviceOnApis.devices.get
+          .devicesTopN(5, pluginData, sort)
+      },
+      getHisData(agent_id, pluginData, sensorId, beginTs, endTs, mount, sort = "desc") {
+        return DeviceOnApis.data.get
+          .histdata(agent_id, pluginData, sensorId, beginTs, endTs, mount, sort)
       }
     }
   }
@@ -326,7 +278,7 @@
       setClock() {
         this.option.series[0].data[0].value =
           (Math.random() * 100).toFixed(2) - 0
-        setInterval(function() {
+        setInterval(function () {
           this.$set(this.option, 0, this.option)
         }, 2000)
       }
@@ -345,10 +297,8 @@
           },
           series: [
             {
-              name: "℃",
               type: "gauge",
-
-              center: ["50%", "40%"],
+              center: ["50%", "50%"],
               min: -40,
               max: 100,
               splitNumber: 14,
@@ -378,6 +328,7 @@
               },
               title: {
                 textStyle: {
+                  show: false,
                   fontWeight: "bolder",
                   fontSize: 20,
                   fontStyle: "italic",
@@ -391,60 +342,12 @@
                   fontSize: 20
                 }
               },
-              data: [{ value: this.tempvalue, name: this.name }]
+              data: [{ value: this.tempvalue }]
             }
           ]
         }
       }
     }
-  })
-  Vue.component("title-row", {
-    model: {
-      prop: "checked",
-      event: "click"
-    },
-    props: {
-      title: {
-        type: String,
-        default: null
-      },
-      checked: {
-        type: Boolean,
-        default: true
-      },
-      showtri: {
-        type: Boolean,
-        default: false
-      }
-    },
-    methods: {
-      changetri() {
-        this.trichecked = !this.trichecked
-        this.$emit("changeTriangle", this.trichecked)
-      }
-    },
-    data() {
-      return {
-        trichecked: this.checked
-      }
-    },
-    template: `
-          <div>
-            <b-col>
-              <h5 class="text-left">
-                {{title}}
-                <template v-if="showtri">
-                <span>|</span>
-                <transition name="fade">
-                <span @click="changetri"
-                  :class=" { 'triangle-bottom': !trichecked, 'triangle-top':trichecked }"></span>
-                </transition>
-                </template>
-              </h5>
-            </b-col>
-            <hr size="1" width="100%" color="#ffffff" />
-         </div>
-         `
   })
   Vue.component("Linechart", {
     extends: VueChartJs.Line,
@@ -464,7 +367,9 @@
   })
   Vue.component("Piechart", {
     extends: VueChartJs.Pie,
+    mixins: [VueChartJs.mixins.reactiveProp],
     props: {
+
       chartData: {
         type: Object,
         default: null
@@ -479,14 +384,166 @@
     }
   })
 
-  // J-NOTE Chartcube組件
-  const Chartcube = {
+  // J-NOTE Chartcube riskiest組件
+  const Riskchartcube = {
+    mixins: [mixin_fn],
     props: {
       height: {
         type: String,
         default: "250px"
       },
-      items: {
+      deviceOptions: {
+        type: Array,
+        default: null
+      },
+      title: {
+        type: String,
+        default: null
+      }
+    },
+    methods: {
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
+        }
+      },
+      async getrisktimedata() {
+        let vue = this
+
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/Lifetime by workload'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/Lifetime by workload'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginLifetimeDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginLifetimeDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginLifetimeDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginLifetimeDisk2Data, 'Disk2')
+          }));
+
+        vue.pluginLifetimeSortedData = vue.pluginLifetimeDisk1Data.data.concat(vue.pluginLifetimeDisk2Data.data);
+        vue.pluginLifetimeSortedData.sort((a, b) => a.value - b.value);
+
+        let labels = []
+        let backgroundColor = []
+        let borderColor = []
+        let data = []
+        if (vue.pluginLifetimeSortedData) {
+          for (let i = 0; i < vue.pluginLifetimeSortedData.length && i < 5; i++) {
+            let barcolor = this.setBarColor(vue.pluginLifetimeSortedData[i].value)
+            let name = vue.pluginLifetimeSortedData[i].agent_name.concat('-', vue.pluginLifetimeSortedData[i].DiskName)
+            labels.push(name)
+            data.push(vue.pluginLifetimeSortedData[i].value)
+            backgroundColor.push(barcolor)
+            borderColor.push(barcolor)
+          }
+        }
+        // 創建charts圖形的必要屬性
+        this.chartData = Object.assign({}, this.chartData, {
+          labels: labels,
+          borderSkipped: "bottom",
+          datasets: [
+            {
+              label: this.title,
+              barPercentage: 0.3,
+              barThickness: 20,
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
+              data: data
+            }
+          ]
+        })
+      },
+
+    },
+    created() {
+      this.getrisktimedata()
+    },
+    template: `<div>
+    <h5 class="set-title">{{ this.title }}</h5>
+    <hr size="1" width="100%" color="#ffffff" />
+    <Barchart
+      :chartData="chartData"
+      :options="chartOptions"
+      :styles="{ height: this.height, position: 'relative' }"
+    ></Barchart>
+  </div>`,
+    watch: {
+      deviceOptions: function (value) {
+        this.getrisktimedata()
+      },
+
+    },
+    data() {
+      return {
+        pluginLifetimeDisk1Data: {},
+        pluginLifetimeDisk2Data: {},
+        pluginLifetimeSortedData: {},
+        chartData: null,
+        chartOptions: {
+          legend: {
+            display: false
+          },
+          layout: {
+            padding: {
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0
+            }
+          },
+          maintainAspectRatio: false, // my new default options
+          scales: {
+            xAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                  fontColor: "#ffffff",
+                  stepSize: 20, // 設定 x 軸的數字級距
+                  z: 10
+                },
+                stacked: false,
+                gridLines: {
+                  lineWidth: 1,
+                  color: "#ffffff",
+                  zeroLineColor: "#56565E",
+                  offsetGridLines: false
+                }
+              }
+            ],
+            yAxes: [
+              {
+                ticks: {
+                  fontColor: "#00F0B4",
+                  padding: 0,
+                  lineHeight: 0,
+                  z: 10
+                },
+                stacked: false,
+                gridLines: {
+                  color: "#464655",
+                  offsetGridLines: true,
+                  z: -10
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+  //Chartcube Unexpected Power組件
+  const Unexpectedchartcube = {
+    mixins: [mixin_fn],
+    props: {
+      height: {
+        type: String,
+        default: "250px"
+      },
+      deviceOptions: {
         type: Array,
         default: null
       },
@@ -500,33 +557,43 @@
       }
     },
     methods: {
-      setBarColor(value) {
-        let color = ""
-        if (value >= 90) {
-          color = "#006666"
-        } else if (value >= 80) {
-          color = "#008E8A"
-        } else if (value >= 60) {
-          color = "#00B2A9"
-        } else if (value >= 20) {
-          color = "#FF7B22"
-        } else {
-          color = "#E52828"
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
         }
-        return color
       },
-      setbardata() {
+      async getUnexpectedpowerdata() {
+        let vue = this
+
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/UnexpectedPowerLossCount'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/UnexpectedPowerLossCount'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginPowerLossDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginPowerLossDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginPowerLossDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginPowerLossDisk2Data, 'Disk2')
+          }));
+        vue.pluginPowerLossSortedData = vue.pluginPowerLossDisk1Data.data.concat(vue.pluginPowerLossDisk2Data.data);
+        vue.pluginPowerLossSortedData.sort((a, b) => b.value - a.value);
+
         let labels = []
         let backgroundColor = []
         let borderColor = []
         let data = []
-
-        for (let ssdrow of this.items) {
-          let barcolor = this.setBarColor(ssdrow)
-          labels.push(ssdrow.DeviceName)
-          data.push(ssdrow.Lifetime)
-          backgroundColor.push(barcolor)
-          borderColor.push(barcolor)
+        if (vue.pluginPowerLossSortedData) {
+          for (let i = 0; i < vue.pluginPowerLossSortedData.length && i < 5; i++) {
+            let barcolor = this.setBarColor(vue.pluginPowerLossSortedData[i].value)
+            let name = vue.pluginPowerLossSortedData[i].agent_name.concat('-', vue.pluginPowerLossSortedData[i].DiskName)
+            labels.push(name)
+            data.push(vue.pluginPowerLossSortedData[i].value)
+            backgroundColor.push(barcolor)
+            borderColor.push(barcolor)
+          }
         }
         // 創建charts圖形的必要屬性
         this.chartData = Object.assign({}, this.chartData, {
@@ -546,10 +613,10 @@
       }
     },
     created() {
-      this.setbardata()
+      this.getUnexpectedpowerdata()
     },
     template: `<div>
-    <h5>{{ this.title }}</h5>
+    <h5 class="set-title">{{ this.title }}</h5>
     <hr size="1" width="100%" color="#ffffff" />
     <Barchart
       :chartData="chartData"
@@ -557,8 +624,16 @@
       :styles="{ height: this.height, position: 'relative' }"
     ></Barchart>
   </div>`,
+    watch: {
+      deviceOptions: function (value) {
+        this.getUnexpectedpowerdata()
+      }
+    },
     data() {
       return {
+        pluginPowerLossDisk1Data: {},
+        pluginPowerLossDisk2Data: {},
+        pluginPowerLossSortedData: {},
         chartData: null,
         chartOptions: {
           legend: {
@@ -577,6 +652,7 @@
             xAxes: [
               {
                 ticks: {
+                  beginAtZero: true,
                   fontColor: this.ifAlert ? "rgba(0,0,0,0.5)" : "#ffffff",
                   stepSize: 20, // 設定 x 軸的數字級距
                   z: 10
@@ -593,7 +669,7 @@
             yAxes: [
               {
                 ticks: {
-                  fontColor: this.ifAlert ? "#09D9A7" : "#09D9A7",
+                  fontColor: this.ifAlert ? "#00F0B4" : "#00F0B4",
                   padding: 0,
                   lineHeight: 0,
                   z: 10
@@ -611,10 +687,138 @@
       }
     }
   }
-  const Linecube = {
+
+  const Piecube = {
     mixins: [mixin_fn],
     props: {
-      items: {
+      rowpiedata: {
+        type: Object
+      },
+      title: {
+        type: String,
+        default: null
+      }
+    },
+    methods: {
+      setPiecolor(sensorname) {
+        let color = ''
+        switch (sensorname) {
+          case 'WriteLength 2K':
+            color = '#CDF54B';
+            break;
+          case 'WriteLength 4K':
+            color = '#FF96B4';
+            break;
+          case 'WriteLength 8K':
+            color = '#FFFF5F';
+            break;
+          case 'WriteLength 16K':
+            color = '#82BDFB';
+            break;
+          case 'WriteLength 32K':
+            color = '#C8A5FF';
+            break;
+          case 'WriteLength 64K':
+            color = '#E3474D';
+            break;
+          case 'WriteLength 128K':
+            color = '#F5EA13';
+            break;
+          case 'WriteLength Other':
+            color = '#4175DE';
+            break;
+        }
+        return color;
+      },
+      async getsensoridListdata(ssddata) {
+        let beginTs = moment().format("YYYY-MM-DD 00:00:00.000")
+        let endTs = moment().format("YYYY-MM-DD 23:59:59.000")
+        let allsensordata = []
+        for (let sensor of this.sensorList) {
+          let sensorId = '/Disk/' + ssddata.DiskName + '/' + sensor
+          await this.getHisData(ssddata.AgentId, 'SSDStatus', sensorId, beginTs, endTs, '1').then(function (xhr) {
+            allsensordata.push(xhr.data.itemList)
+          })
+        }
+        return allsensordata
+      },
+      async setbardata() {
+
+        let labels = []
+        let backgroundColor = []
+        let borderColor = []
+        let data = []
+        let sensordata = null;
+        await this.getsensoridListdata(this.rowpiedata).then(function (res) {
+          sensordata = res
+        });
+
+        // for API的資料
+        for (let ssdrow of sensordata) {
+          let barcolor = this.setPiecolor(ssdrow[0].n);
+          labels.push(ssdrow[0].n);
+          data.push(ssdrow[0].v);
+          backgroundColor.push(barcolor);
+          borderColor.push(barcolor);
+        }
+        // 創建charts圖形的必要屬性
+        this.$set(this.ssdoptions, 0, {})
+        this.ssdoptions[0].chartData = Object.assign({}, this.ssdoptions[0].chartData, {
+          labels: labels,
+          borderSkipped: "bottom",
+          datasets: [
+            {
+              fill: true,
+              label: labels,
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
+              data: data
+            }
+          ]
+        });
+        this.ssdoptions[0].chartOptions = Object.assign({}, this.ssdoptions[0].chartOptions, {
+          title: {
+            text: this.rowpiedata.AgentName.concat('-', this.rowpiedata.DiskName),
+            display: true,
+            position: "top"
+          },
+          legend: {
+            display: false
+          },
+          rotation: -0.7 * Math.PI
+        });
+      }
+    },
+    created() {
+      this.setbardata()
+    },
+    template: `<div>
+    <h5>{{ this.title }}</h5>
+    <hr size="1" width="100%" color="#ffffff" />
+    <Piechart :chartData="ssdoptions[0].chartData" :options="ssdoptions[0].chartOptions"></Piechart>
+  </div>`,
+    data() {
+      return {
+        ssdoptions: [],
+        sensorList: [
+          'WriteLength 2K',
+          'WriteLength 4K',
+          'WriteLength 8K',
+          'WriteLength 16K',
+          'WriteLength 32K',
+          'WriteLength 64K',
+          'WriteLength 128K',
+          'WriteLength other'
+        ],
+      }
+    }
+  }
+
+  //powerlosscountLineCube
+  const Powerlosscountlinecube = {
+    mixins: [mixin_fn],
+    props: {
+      deviceOptions: {
         type: Array,
         default: null
       },
@@ -624,57 +828,234 @@
       }
     },
     methods: {
-      setbardata() {
-        let setdatasets = []
-        let labels = []
-        let unexpectedrow = {}
-        let day = moment()
-        for (let st = 7; st >= 1; st--) {
-          labels.push(day.subtract(st, "day").format("MM-DD"))
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
         }
+      },
+      async getPowerlostlinedata() {
+        let vue = this
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/UnexpectedPowerLossCount'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/UnexpectedPowerLossCount'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginPowerLossDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginPowerLossDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginPowerLossDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginPowerLossDisk2Data, 'Disk2')
+          }));
+        //agent_id:
+        //agent_name:
+        // value:
+        // DiskName:
+        vue.pluginPowerLossSortedData = vue.pluginPowerLossDisk1Data.data.concat(vue.pluginPowerLossDisk2Data.data);
+        vue.pluginPowerLossSortedData.sort((a, b) => b.value - a.value);
 
-        for (let ssdrow of this.items) {
-          // 設定每個線段樣式
-          let rowdata = {}
-          rowdata.label = ssdrow.DeviceName
-          rowdata.backgroundColor = this.statucolor(ssdrow.Status)
-          rowdata.borderColor = this.statucolor(ssdrow.Status) // 設定線的顏色
-          rowdata.pointBorderColor = this.statucolor(ssdrow.Status)
-          rowdata.pointBackgroundColor = this.statucolor(ssdrow.Status) // 設定點的顏色
-          rowdata.pointHoverBackgroundColor = this.statucolor(ssdrow.Status) // 設定點的顏色
-          rowdata.lineTension = 0 // 顯示折線圖，不使用曲線
-          rowdata.data = ssdrow.UnexpectedPowerCycleCount
-          rowdata.pointBorderWidth = 1
-          rowdata.pointHoverRadius = 1
-          rowdata.borderWidth = 1
-          rowdata.fill = false // 不顯示底下的灰色區塊
-          setdatasets.push(rowdata)
+        if (vue.pluginPowerLossSortedData) {
+          let setdatasets = []
+          let labels = []
+
+
+          for (let st = 7; st >= 1; st--) {
+            labels.push(moment().subtract(st, "day").format("MM-DD"))
+          }
+          for (let i = 0; i < vue.pluginPowerLossSortedData.length && i < 5; i++) {
+            let sensorId = "/Disk/" + vue.pluginPowerLossSortedData[i].DiskName + '/UnexpectedPowerLossCount'
+            let oneLinedata = []
+            for (let st = 7; st >= 1; st--) {
+              let beginTs = moment()
+                .subtract(st, "day").format("YYYY-MM-DD 00:00:00.000")
+              let endTs = moment()
+                .subtract(st, "day").format("YYYY-MM-DD 23:59:59.000")
+              await this.getHisData(vue.pluginPowerLossSortedData[i].agent_id, 'SSDStatus', sensorId, beginTs, endTs, "1")
+                .then(function (xhr) {
+                  //  console.log(xhr)
+                  //每日只抓1筆資料
+                  if (Array.isArray(xhr.data.itemList) && xhr.data.itemList.length) {
+                    oneLinedata.push(xhr.data.itemList[0].v)
+                  } else {
+                    oneLinedata.push(0)
+                  }
+                })
+            }
+            // 設定每個線段樣式
+            let rowdata = {}
+            rowdata.label = vue.pluginPowerLossSortedData[i].agent_name.concat('-', vue.pluginPowerLossSortedData[i].DiskName)
+            rowdata.backgroundColor = this.statucolor(vue.pluginPowerLossSortedData[i].value)
+            rowdata.borderColor = this.statucolor(vue.pluginPowerLossSortedData[i].value) // 設定線的顏色
+            rowdata.pointBorderColor = this.statucolor(vue.pluginPowerLossSortedData[i].value)
+            rowdata.pointBackgroundColor = this.statucolor(vue.pluginPowerLossSortedData[i].value) // 設定點的顏色
+            rowdata.pointHoverBackgroundColor = this.statucolor(vue.pluginPowerLossSortedData[i].value) // 設定點的顏色
+            rowdata.lineTension = 0 // 顯示折線圖，不使用曲線
+            rowdata.data = oneLinedata
+            rowdata.pointBorderWidth = 1
+            rowdata.pointHoverRadius = 1
+            rowdata.borderWidth = 1
+            rowdata.fill = false // 不顯示底下的灰色區塊
+            setdatasets.push(rowdata)
+          }
+          // 創建charts圖形的必要屬性
+          this.chartData = Object.assign({}, this.chartData, {
+            labels: labels,
+            datasets: setdatasets
+          })
         }
-        // 創建charts圖形的必要屬性
-        this.chartData = Object.assign({}, this.chartData, {
-          labels: labels,
-          datasets: setdatasets
-        })
       }
     },
-
     created() {
-      this.setbardata()
+      this.getPowerlostlinedata()
     },
     template: ` <div>
-    <h5>{{ this.title }}</h5>
+    <h5 class="set-title">{{ this.title }}</h5>
     <hr size="1" width="100%" color="#ffffff" />
     <Linechart :chartData="chartData" :options="chartOptions"></Linechart>
   </div>`,
     data() {
       return {
-        unexpectedsSSDs: [
-          { name: "SSD A", unexpectedday: [40, 40, 50, 80, 30, 50, 20] },
-          { name: "SSD B", unexpectedday: [40, 40, 80, 80, 10, 90, 10] },
-          { name: "SSD C", unexpectedday: [40, 40, 50, 80, 10, 22, 20] },
-          { name: "SSD D", unexpectedday: [40, 40, 50, 70, 55, 50, 0] },
-          { name: "SSD E", unexpectedday: [50, 0, 50, 80, 10, 80, 20] }
-        ],
+        pluginPowerLossDisk1Data: {},
+        pluginPowerLossDisk2Data: {},
+        pluginPowerLossSortedData: {},
+        chartData: null,
+        chartOptions: {
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  fontColor: "rgba(0,0,0,0.5)",
+                  fontStyle: "bold",
+                  maxTicksLimit: 5,
+                  padding: 5
+                },
+                gridLines: {
+                  display: false
+                }
+              }
+            ],
+            xAxes: [
+              {
+                gridLines: {
+                  zeroLineColor: "transparent"
+                },
+                ticks: {
+                  padding: 5,
+                  fontColor: "rgba(0,0,0,0.5)",
+                  fontStyle: "bold"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+  //TemperatureLineCube
+  const Temperaturelinecube = {
+    mixins: [mixin_fn],
+    props: {
+      deviceOptions: {
+        type: Array,
+        default: null
+      },
+      title: {
+        type: String,
+        default: null
+      }
+    },
+    methods: {
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
+        }
+      },
+      async getTemperaturelinedata() {
+        let vue = this
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/UnexpectedPowerLossCount'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/UnexpectedPowerLossCount'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginTempDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginTempDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginTempDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginTempDisk2Data, 'Disk2')
+          }));
+        //agent_id:
+        //agent_name:
+        // value:
+        // DiskName:
+        vue.pluginTempSortedData = vue.pluginTempDisk1Data.data.concat(vue.pluginTempDisk2Data.data);
+        vue.pluginTempSortedData.sort((a, b) => b.value - a.value);
+
+        if (vue.pluginTempSortedData) {
+          let setdatasets = []
+          let labels = []
+
+          for (let st = 7; st >= 1; st--) {
+            labels.push(moment().subtract(st, "day").format("MM-DD"))
+          }
+          for (let i = 0; i < vue.pluginTempSortedData.length && i < 5; i++) {
+            let sensorId = "/Disk/" + vue.pluginTempSortedData[i].DiskName + '/Temperature'
+            let oneLinedata = []
+            for (let st = 7; st >= 1; st--) {
+              let beginTs = moment()
+                .subtract(st, "day").format("YYYY-MM-DD 00:00:00.000")
+              let endTs = moment()
+                .subtract(st, "day").format("YYYY-MM-DD 23:59:59.000")
+              await this.getHisData(vue.pluginTempSortedData[i].agent_id, 'SSDStatus', sensorId, beginTs, endTs, "1")
+                .then(function (xhr) {
+                  //  console.log(xhr)
+                  //每日只抓1筆資料
+                  if (Array.isArray(xhr.data.itemList) && xhr.data.itemList.length) {
+                    oneLinedata.push(xhr.data.itemList[0].v)
+                  } else {
+                    oneLinedata.push(0)
+                  }
+                })
+            }
+            // 設定每個線段樣式
+            let rowdata = {}
+            rowdata.label = vue.pluginTempSortedData[i].agent_name.concat('-', vue.pluginTempSortedData[i].DiskName)
+            rowdata.backgroundColor = this.statucolor(vue.pluginTempSortedData[i].value)
+            rowdata.borderColor = this.statucolor(vue.pluginTempSortedData[i].value) // 設定線的顏色
+            rowdata.pointBorderColor = this.statucolor(vue.pluginTempSortedData[i].value)
+            rowdata.pointBackgroundColor = this.statucolor(vue.pluginTempSortedData[i].value) // 設定點的顏色
+            rowdata.pointHoverBackgroundColor = this.statucolor(vue.pluginTempSortedData[i].value) // 設定點的顏色
+            rowdata.lineTension = 0 // 顯示折線圖，不使用曲線
+            rowdata.data = oneLinedata
+            rowdata.pointBorderWidth = 1
+            rowdata.pointHoverRadius = 1
+            rowdata.borderWidth = 1
+            rowdata.fill = false // 不顯示底下的灰色區塊
+            setdatasets.push(rowdata)
+          }
+          // 創建charts圖形的必要屬性
+          this.chartData = Object.assign({}, this.chartData, {
+            labels: labels,
+            datasets: setdatasets
+          })
+        }
+      }
+    },
+    created() {
+      this.getTemperaturelinedata()
+    },
+    template: ` <div>
+    <h5 class="set-title">{{ this.title }}</h5>
+    <hr size="1" width="100%" color="#ffffff" />
+    <Linechart :chartData="chartData" :options="chartOptions"></Linechart>
+  </div>`,
+    data() {
+      return {
+        pluginTempDisk1Data: {},
+        pluginTempDisk2Data: {},
+        pluginTempSortedData: {},
         chartData: null,
         chartOptions: {
           scales: {
@@ -710,7 +1091,7 @@
   }
   const selfalert = {
     methods: {
-      closeAlert: function() {
+      closeAlert: function () {
         this.$emit("close-alert")
       }
     },
@@ -740,7 +1121,7 @@
         type: String,
         default: null
       },
-      items: {
+      deviceOptions: {
         type: Array,
         default: null
       },
@@ -752,16 +1133,41 @@
       toColor(Status) {
         this.$emit("chiesecolor", Status)
       },
-      changeTriangle() {
-        this.triangleTop = !this.triangleTop
-        this.triangleBottom = !this.triangleBottom
-        this.$emit("changeTriangle", !this.controltri)
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
+        }
+      },
+      async getTemperatureData() {
+        let vue = this
+
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/Temperature'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/Temperature'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginTempDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginTempDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginTempDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginTempDisk2Data, 'Disk2')
+          }));
+
+        vue.pluginTempSortedData = vue.pluginTempDisk1Data.data.concat(vue.pluginTempDisk2Data.data);
+        vue.pluginTempSortedData.sort((a, b) => b.value - a.value);
+        let Tempdata = [];
+        if (vue.pluginTempSortedData) {
+          for (let i = 0; i < vue.pluginTempSortedData.length && i < 5; i++) {
+            Tempdata[i] = { DiskName: vue.pluginTempSortedData[i].agent_name.concat('-', vue.pluginTempSortedData[i].DiskName), value: vue.pluginTempSortedData[i].value }
+          }
+          vue.$set(vue, 'TempSortedData', Tempdata)
+        }
       }
     },
-    computed: {
-      Temperature: function() {
-        return this.items.slice().sort((a, b) => b.Temp - a.Temp)
-      }
+    created() {
+      this.getTemperatureData()
     },
     template: `<div>
     <b-row cols-sm="2" cols-md="5" class="d-flex">
@@ -771,277 +1177,423 @@
           <hr size="1" width="100%" color="#ffffff" />
         </div>
       </b-col>
-      <template v-if="items.length">
-        <b-col v-for="item in Temperature" :key="item.id">
+        <b-col v-for="(item,index) in TempSortedData" :key="index">
           <egauge
-            :style="{ width: '250px', height: '300px' }"
-            :tempvalue="item.Temp"
-            :name="item.DeviceName"
+            :style="{ width: '272px', height: '250px' }"
+            :tempvalue="item.value"
+            :name="item.DiskName"
           ></egauge>
+          <p class="egauge-title">{{item.DiskName}}</p>
         </b-col>
-      </template>
     </b-row>
   </div>`,
+    watch: {
+      deviceOptions: function (value) {
+        this.getTemperatureData()
+      }
+    },
     data() {
       return {
+        pluginTempDisk1Data: {},
+        pluginTempDisk2Data: {},
+        pluginTempSortedData: {},
+        TempSortedData: [],
         triangleTop: true,
         triangleBottom: false
       }
     }
   }
-  const Ssdprogress = {
+  const Readworkprogress = {
     mixins: [mixin_fn],
     props: {
-      items: {
+      deviceOptions: {
         type: Array,
         default: null
       },
       title: {
         type: String,
         default: null
-      },
-      btype: {
-        type: String,
-        default: null
       }
     },
     methods: {
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
+        }
+      },
       // J-NOTE 注意最大值
-      settingbar: function(Status, value) {
+      settingbar: function (value) {
         return {
-          background: this.statucolor(Status),
-          width: String((value / 1000) * 100) + "%"
+          //J-TODO 未設定顏色
+          background: this.statucolor(value),
+          width: this.BarMaxValue > 0 ? String((value / this.BarMaxValue) * 100) + "%" : "0%"
+        }
+      },
+      async getReadWorkloadAllData() {
+        let vue = this
+
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/ReadWorkload'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/ReadWorkload'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginReadWorkloadDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginReadWorkloadDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginReadWorkloadDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginReadWorkloadDisk2Data, 'Disk2')
+          }));
+
+        vue.pluginReadWorkloadSortedData = vue.pluginReadWorkloadDisk1Data.data.concat(vue.pluginReadWorkloadDisk2Data.data);
+        vue.pluginReadWorkloadSortedData.sort((a, b) => b.value - a.value);
+        let ReadWorkloadrowdata = [];
+        if (vue.pluginReadWorkloadSortedData) {
+          for (let i = 0; i < vue.pluginReadWorkloadSortedData.length && i < 5; i++) {
+            if (i == 0) {
+              vue.$set(vue, 'BarMaxValue', vue.pluginReadWorkloadSortedData[i].value)
+            }
+            ReadWorkloadrowdata[i] = { DeviceName: vue.pluginReadWorkloadSortedData[i].agent_name.concat('-', vue.pluginReadWorkloadSortedData[i].DiskName), value: vue.pluginReadWorkloadSortedData[i].value }
+          }
+          vue.$set(vue, 'ReadWorkloadrowdata', ReadWorkloadrowdata)
         }
       }
     },
-    computed: {
-      Loadsort: function() {
-        let type = this.btype
-        return this.items.slice().sort((a, b) => b[type] - a[type])
-      }
+    created() {
+      this.getReadWorkloadAllData()
     },
     template: ` <div>
-    <h5>{{ this.title }}</h5>
+    <h5 class="set-title">{{ this.title }}</h5>
     <hr size="1" width="100%" color="#ffffff" />
     <b-row class="justify-content-between">
       <slot></slot>
     </b-row>
-    <b-row class="mb-1" v-for="rowdata in Loadsort" :key="rowdata.id">
-      <b-col md="4">{{ rowdata.DeviceName }}:</b-col>
-      <b-col md="8">
+    <b-row class="mb-1" v-for="(rowdata,index) in ReadWorkloadrowdata" :key="index">
+      <b-col md="12">
+      <h6 class="set-title">{{ rowdata.DeviceName }}:</h6>
         <!--J-DONE  更換長條圖背景顏色-->
         <div class="myProgress">
-          <div class="mybar" :style="settingbar(rowdata.Status,rowdata[btype])">{{rowdata[btype]}}</div>
+        <template v-if="index==0">
+          <div class="mybar" :style="settingbar(rowdata.value)">{{rowdata.value}}</div>
+        </template>
+        <template v-else>
+           <div class="mybar-right" :style="settingbar(rowdata.value)">{{rowdata.value}}</div>
+        </template>
         </div>
-        <!-- <b-progress
-          class="bgray"
-          :show-value="true"
-          :value="rowdata[btype]"
-          height="25px"
-          variant="info"
-          max="1000"
-        ></b-progress>-->
       </b-col>
-      <hr class="mb-1 mt-1" size="1" width="80%" color="#ffffff" />
+      <hr class="mb-1 mt-1" size="1" width="95%" color="#ffffff" />
     </b-row>
-  </div>`
-  }
-  const Gauge = {
-    mixins: [mixin_fn],
-    components: {
-      "v-chart": VueECharts
+  </div>`,
+    watch: {
+      deviceOptions: function (value) {
+        this.getReadWorkloadAllData()
+      }
     },
+    data() {
+      return {
+        pluginReadWorkloadDisk1Data: {},
+        pluginReadWorkloadDisk2Data: {},
+        pluginReadWorkloadSortedData: {},
+        ReadWorkloadrowdata: [],
+        BarMaxValue: 0
+      }
+    }
+  }
+  const Writeworkprogress = {
+    mixins: [mixin_fn],
     props: {
-      title: {
-        type: String,
+      deviceOptions: {
+        type: Array,
         default: null
       },
-      items: {
-        type: Array,
+      title: {
+        type: String,
         default: null
       }
     },
     methods: {
-      setgaugedata() {
-        console.log(this.items)
-        let total = this.ssd_total
-        let count = this.ssd_count
-        this.option = Object.assign({}, this.option, {
-          legend: {
-            right: "center",
-            bottom: 0,
-            orient: "horizontal"
-          },
-          series: [
-            {
-              type: "gauge",
-              center: ["40%", "40%"],
-              startAngle: 225,
-              endAngle: -45,
-              radius: "75%",
-              splitNumber: 0,
-              axisLine: {
-                lineStyle: {
-                  width: 40,
-                  color: [
-                    [count / total, "#00b2a9"],
-                    [1, "#666666"]
-                  ]
-                }
-              },
-              axisLabel: {
-                formatter: function(v) {
-                  switch (v + "") {
-                  }
-                }
-              },
-              pointer: {
-                width: 0
-              },
-              title: {
-                textStyle: {
-                  fontWeight: "bolder",
-                  fontSize: 15,
-                  color: "#ffffff"
-                },
-                offsetCenter: [0, "20%"]
-              },
-              detail: {
-                textStyle: {
-                  fontWeight: "bolder",
-                  fontSize: 30,
-                  color: "#00f0b4"
-                },
-                offsetCenter: [0, "80%"],
-                formatter: function(value) {
-                  return value.toString().concat("/", total.toString())
-                }
-              },
-              data: [{ value: count, name: "Online / Total SSD" }]
-            }
-          ]
-        })
-      }
-    },
-    created() {
-      this.setgaugedata()
-    },
-    computed: {
-      ssd_total: function() {
-        return this.items.length
-      },
-      ssd_count: function() {
-        let count = 0
-        for (let obj of this.items) {
-          if (obj.Connected) {
-            if (obj.Status == 1 || obj.Status == 2 || obj.Status == 3) {
-              count++
-            }
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
           }
         }
-        return count
+      },
+      // J-NOTE 注意最大值
+      settingbar: function (value) {
+        return {
+          //J-TODO 未設定顏色
+          background: this.statucolor(value),
+          width: this.BarMaxValue > 0 ? String((value / this.BarMaxValue) * 100) + "%" : "0%"
+        }
+      },
+      async getWriteWorkloadAllData() {
+        let vue = this
+
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/WriteWorkload'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/WriteWorkload'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginWriteWorkloadDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginWriteWorkloadDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginWriteWorkloadDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginWriteWorkloadDisk2Data, 'Disk2')
+          }));
+        vue.pluginWriteWorkloadSortedData = vue.pluginWriteWorkloadDisk1Data.data.concat(vue.pluginWriteWorkloadDisk2Data.data);
+        vue.pluginWriteWorkloadSortedData.sort((a, b) => b.value - a.value);
+        let WriteWorkloadrowdata = [];
+        if (vue.pluginWriteWorkloadSortedData) {
+          for (let i = 0; i < vue.pluginWriteWorkloadSortedData.length && i < 5; i++) {
+            if (i == 0) {
+              vue.$set(vue, 'BarMaxValue', vue.pluginWriteWorkloadSortedData[i].value)
+            }
+            WriteWorkloadrowdata[i] = {
+              DeviceName: vue.pluginWriteWorkloadSortedData[i].agent_name.concat('-', vue.pluginWriteWorkloadSortedData[i].DiskName),
+              AgentName: vue.pluginWriteWorkloadSortedData[i].agent_name,
+              AgentId: vue.pluginWriteWorkloadSortedData[i].agent_id,
+              DiskName: vue.pluginWriteWorkloadSortedData[i].DiskName,
+              value: vue.pluginWriteWorkloadSortedData[i].value
+            }
+          }
+          vue.$set(vue, 'WriteWorkloadrowdata', WriteWorkloadrowdata)
+        }
+      },
+      changePiedata(rowdata) {
+        this.$emit('getpiedata', rowdata)
+      },
+    },
+    created() {
+      this.getWriteWorkloadAllData()
+    },
+
+    template: ` <div>
+    <h5 class="set-title">{{ this.title }}</h5>
+    <hr size="1" width="100%" color="#ffffff" />
+    <b-row class="justify-content-between">
+      <slot></slot>
+    </b-row>
+    <b-row class="mb-1" v-for="(rowdata,index) in WriteWorkloadrowdata" :key="index">
+      <b-col md="12">
+      <h6 class="set-title">{{ rowdata.DeviceName }}:</h6>
+        <!--J-DONE  更換長條圖背景顏色-->
+        <a class="point" @click="changePiedata(rowdata)" >
+        <div class="myProgress">
+        <template v-if="index==0">
+          <div class="mybar" :style="settingbar(rowdata.value)">{{rowdata.value}}</div>
+        </template>
+        <template v-else>
+           <div class="mybar-right" :style="settingbar(rowdata.value)">{{rowdata.value}}</div>
+        </template>
+        </div>
+        </a>
+      </b-col>
+      <hr class="mb-1 mt-1" size="1" width="95%" color="#ffffff" />
+    </b-row>
+  </div>`,
+    watch: {
+      deviceOptions: function (value) {
+        this.getWriteWorkloadAllData()
       }
     },
-    template: `<div>
-    <h5>{{ this.title }}</h5>
-    <hr size="1" width="100%" color="#ffffff" />
-    <v-chart :options="option" />
-  </div>`,
     data() {
       return {
-        option: {}
+        pluginWriteWorkloadDisk1Data: {},
+        pluginWriteWorkloadDisk2Data: {},
+        pluginWriteWorkloadSortedData: {},
+        WriteWorkloadrowdata: [],
+        BarMaxValue: 0
       }
     }
   }
-  const Piecube = {
+  const Readloadpiecube = {
     mixins: [mixin_fn],
     props: {
-      items: {
-        type: Array,
-        default: null
-      },
       title: {
         type: String,
         default: null
       },
-      pietype: {
-        type: String
-      }
     },
     methods: {
-      setbardata() {
-        let labels = []
-        let backgroundColor = []
-        let borderColor = []
-        let data = []
-
-        for (let ssdrow of this.items) {
-          let barcolor = this.statucolor(ssdrow.Status)
-          labels.push(ssdrow.DeviceName)
-          data.push(ssdrow[this.pietype])
-          backgroundColor.push(barcolor)
-          borderColor.push(barcolor)
+      setPiecolor(sensorname) {
+        let color = ''
+        switch (sensorname) {
+          case 'ReadLength 2K':
+            color = '#CDF54B';
+            break;
+          case 'ReadLength 4K':
+            color = '#FF96B4';
+            break;
+          case 'ReadLength 8K':
+            color = '#FFFF5F';
+            break;
+          case 'ReadLength 16K':
+            color = '#82BDFB';
+            break;
+          case 'ReadLength 32K':
+            color = '#C8A5FF';
+            break;
+          case 'ReadLength 64K':
+            color = '#E3474D';
+            break;
+          case 'ReadLength 128K':
+            color = '#F5EA13';
+            break;
+          case 'ReadLength Other':
+            color = '#4175DE';
+            break;
         }
-        // 創建charts圖形的必要屬性
-        this.chartData = Object.assign({}, this.chartData, {
-          labels: labels,
-          borderSkipped: "bottom",
-          datasets: [
-            {
-              fill: true,
-              label: this.title,
-              backgroundColor: backgroundColor,
-              borderColor: borderColor,
-              data: data
-            }
-          ]
-        })
+        return color;
+      },
+      addDiskName(pluginData, Diskname) {
+        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
+          for (let start = 0; start < pluginData.data.length; start++) {
+            this.$set(pluginData.data[start], 'DiskName', Diskname)
+          }
+        }
+      },
+
+      async getsensoridListdata(ssddata) {
+        let beginTs = moment().format("YYYY-MM-DD 00:00:00.000")
+        let endTs = moment().format("YYYY-MM-DD 23:59:59.000")
+        let allsensordata = []
+        for (let sensor of this.sensorList) {
+          let sensorId = '/Disk/' + ssddata.DiskName + '/' + sensor
+          await this.getHisData(ssddata.agent_id, 'SSDStatus', sensorId, beginTs, endTs, '1').then(function (xhr) {
+            allsensordata.push(xhr.data.itemList)
+          })
+        }
+        return allsensordata
+      },
+      async setpiedata() {
+        this.pluginReadWorkloadSortedData = this.pluginReadWorkloadDisk1Data.data.concat(this.pluginReadWorkloadDisk2Data.data);
+        let copydata = this.pluginReadWorkloadSortedData.sort((a, b) => b.value - a.value).slice(0, 4);
+        for (let i = 0; i < copydata.length; i++) {
+          let labels = [];
+          let backgroundColor = [];
+          let borderColor = [];
+          let data = [];
+          let sensordata = null;
+          await this.getsensoridListdata(copydata[i]).then(function (res) {
+            sensordata = res
+          });
+          // for API的資料
+          for (let ssdrow of sensordata) {
+            let barcolor = this.setPiecolor(ssdrow[0].n);
+            labels.push(ssdrow[0].n);
+            data.push(ssdrow[0].v);
+            backgroundColor.push(barcolor);
+            borderColor.push(barcolor);
+          }
+          // 創建charts圖形的必要屬性
+          this.$set(this.ssdoptions, i, {})
+          this.ssdoptions[i].chartData = Object.assign({}, this.ssdoptions[i].chartData, {
+            labels: labels,
+            borderSkipped: "bottom",
+            datasets: [
+              {
+                fill: true,
+                label: labels,
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
+                data: data
+              }
+            ]
+          });
+          this.ssdoptions[i].chartOptions = Object.assign({}, this.ssdoptions[i].chartOptions, {
+            title: {
+              text: copydata[i].agent_name.concat('-', copydata[i].DiskName),
+              display: true,
+              position: "top"
+            },
+            legend: {
+              display: false
+            },
+            rotation: -0.7 * Math.PI
+          });
+        }
+      },
+      async getReadWorkloadAllData() {
+        let vue = this
+        await axios.all([this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk1/ReadWorkload'
+        )), this.getTopData('SSDStatus'.concat(
+          '/Disk/Disk2/ReadWorkload'
+        ))])
+          .then(axios.spread(function (xhr1, xhr2) {
+            vue.$set(vue, 'pluginReadWorkloadDisk1Data', xhr1.data)
+            vue.addDiskName(vue.pluginReadWorkloadDisk1Data, 'Disk1')
+            vue.$set(vue, 'pluginReadWorkloadDisk2Data', xhr2.data)
+            vue.addDiskName(vue.pluginReadWorkloadDisk2Data, 'Disk2')
+          }));
+        vue.setpiedata()
       }
     },
     created() {
-      this.setbardata()
+      this.getReadWorkloadAllData();
     },
     template: `<div>
-    <h5>{{ this.title }}</h5>
-    <hr size="1" width="100%" color="#ffffff" />
-    <Piechart :chartData="chartData" :options="chartOptions"></Piechart>
+    <b-row class="d-flex">
+      <div class="piereadgroup" v-for="(option,index) in ssdoptions" :key="index">
+        <!--
+       <h5>{{option.name}}</h5>
+        <hr size="1" width="100%" color="#ffffff" />
+        -->
+        <Piechart :chartData="option.chartData" :options="option.chartOptions"></Piechart>
+      </div>
+    </b-row>
   </div>`,
     data() {
       return {
-        chartData: null,
-        chartOptions: {
-          title: {
-            display: true,
-            text: "TEST",
-            position: "top"
-          },
-          rotation: -0.7 * Math.PI
-        }
-      }
+        // 固定按照功能分配API
+        ssdoptions: [],
+        pluginReadWorkloadDisk1Data: {},
+        pluginReadWorkloadDisk2Data: {},
+        pluginReadWorkloadSortedData: {},
+        sensorList: [
+          'ReadLength 2K',
+          'ReadLength 4K',
+          'ReadLength 8K',
+          'ReadLength 16K',
+          'ReadLength 32K',
+          'ReadLength 64K',
+          'ReadLength 128K',
+          'ReadLength Other'
+        ],
+      };
     }
-  }
+  };
   // eslint-disable-next-line no-new
   new Vue({
     el: "#app",
     mixins: [mixin_fn],
     components: {
-      Chartcube,
-      Linecube,
+      Riskchartcube,
+      Unexpectedchartcube,
+      Piecube,
       Temperaturegauge,
-      Ssdprogress,
-      Gauge,
-      Piecube
+      Readworkprogress,
+      Writeworkprogress,
+      Readloadpiecube,
+      Powerlosscountlinecube,
+      Temperaturelinecube,
+      "gague": VueECharts,
     },
-   
     created() {
-      this.getDevices(this.gid, { pageSize: 10000, no: 1 })
+      self = this;
+      self.getDevices(this.gid, { pageSize: 10000, no: 1 });
+      setInterval(() => {
+        self.cyclelife()
+      }, 1000);
     },
     methods: {
-      changealert() {
-        this.isAlert = !this.isAlert
+      changePowerloss() {
+        this.alertwindow.ispowerlossLine = !this.alertwindow.ispowerlossLine
       },
-      changeLine() {
-        this.isLine = !this.isLine
+      changeTemperature() {
+        this.alertwindow.isTemperatureLine = !this.alertwindow.isTemperatureLine
       },
       changePieRead() {
         this.isPieRead = !this.isPieRead
@@ -1049,15 +1601,34 @@
       changePieWrite() {
         this.isPieWrite = !this.isPieWrite
       },
-      controlTriangle(control) {
-        console.log(control)
-        this.istriforTemp = control
+      settingPieData(data) {
+        let setting = {};
+        if (data.hasOwnProperty('value')) {
+          setting = data
+        }
+        this.$set(this, 'rowpiedata', setting)
       },
-      getDevices(gid, data) {
+      clickWriteBar(data) {
+        this.settingPieData(data)
+        this.changePieWrite()
+      },
+      async cyclelife() {
+        let self = this
+        for (let i = 0; i < this.deviceOptions.length; i++) {
+          if (this.deviceOptions[i].connected) {
+            await this.getAutoReport(this.deviceOptions[i]).then(function (xhr) {
+              if (xhr && xhr.data && xhr.data.result) {
+                self.getDevices(self.gid, { pageSize: 10000, no: 1 });
+              }
+            })
+          }
+        }
+      },
+      async getDevices(gid, data) {
         vm = this
-        DeviceOnApis.devicegroups.get.devicesAll(data).then(function(xhr) {
+        DeviceOnApis.devicegroups.get.devicesAll(data).then(function (xhr) {
           if (xhr && xhr.data && xhr.data.devices) {
-            let devices = xhr.data.devices.sort(function(a, b) {
+            let devices = xhr.data.devices.sort(function (a, b) {
               let statusA = 0
               let statusB = 0
               if (a.connected) {
@@ -1086,174 +1657,160 @@
           }
         })
       },
-      getAutoReport(deviceOption) {
-       
+      async getAutoReport(deviceOption) {
         let ajaxData = {
           did: deviceOption.did,
           agentid: deviceOption.agentid,
           plugin: "SSDStatus",
-          interval: 3,
-          timeout: 2
+          interval: 10,
+          timeout: 1
         }
         return DeviceOnApis.devicectrl.put.intermittentReport(ajaxData)
       },
-      startAutoReport() {
-        for (let i = 0; i < this.deviceOptions.length; i++) {
-          if (this.deviceOptions[i].connected) {
-            let ajaxData = {
-              did: this.deviceOptions[i].did,
-              agentid: this.deviceOptions[i].agentid,
-              plugin: this.plugin,
-              interval: 10,
-              timeout: 1
-            };
-            DeviceOnApis.devicectrl.put
-              .intermittentReport(ajaxData)
-              .then(function (xhr) {
-                if (xhr && xhr.data && xhr.data.result) {
-                  console.log(xhr.config.data);
+      setOptionTotalssds(count, total) {
+        this.$set(this, 'option_totalssds', {
+          legend: {
+            right: 'center',
+            bottom: 0,
+            orient: 'horizontal'
+          },
+          series: [
+            {
+              type: 'gauge',
+              center: ['50%', '50%'],
+              startAngle: 225,
+              endAngle: -45,
+              radius: '75%',
+              splitNumber: 0,
+              axisLine: {
+                lineStyle: {
+                  width: 40,
+                  color: [
+                    [count / total, '#00b2a9'],
+                    [1, '#666666']
+                  ]
                 }
-              })
-              .catch(function (error) { });
-          }
-        }
-
+              },
+              axisLabel: {
+                formatter: function (v) {
+                  switch (v + '') {
+                  }
+                }
+              },
+              pointer: {
+                width: 0
+              },
+              title: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 15,
+                  color: '#00f0b4'
+                },
+                offsetCenter: [0, '20%']
+              },
+              detail: {
+                textStyle: {
+                  fontWeight: 'bolder',
+                  fontSize: 30,
+                  color: '#00f0b4'
+                },
+                offsetCenter: [0, '80%'],
+                formatter: function (value) {
+                  return value.toString().concat(' / ', total.toString());
+                }
+              },
+              data: [{ value: count, name: 'Online / Total SSD' }]
+            }
+          ]
+        })
       },
-      getTableData(deviceOptions) {
+      async getTableData(deviceOptions) {
         vm = this
         var DeviceData = []
-        // var total = 0
-        // var count = 0
+        var total = 0
+        var count = 0
         for (let i = 0; i < deviceOptions.length; i++) {
-          DeviceOnApis.data.get
+          await DeviceOnApis.data.get
             .pluginLatestData(
               deviceOptions[i].did,
               deviceOptions[i].agentid,
               "SSDStatus"
             )
-            .then(function(xhr) {
+            .then(function (xhr) {
               for (let ssd of xhr.data["SSDStatus"].Disk) {
-                // total++
                 ssd.agentId = xhr.data["SSDStatus"].agentId
                 ssd.connected = xhr.data["connected"]
                 DeviceData.push(ssd)
               }
-
-              var pushdevicData = []
-              var Diskdata = []
-              for (let sddData of DeviceData) {
-                let device = deviceOptions.filter(
-                  x => x.agentid == sddData.agentId
-                )
-                let name = device[0].name.concat("-", sddData.bn)
-                let ssd_status = sddData.e[4].v
-                // if (sddData.connected) {
-                //   if (ssd_status == 0 || ssd_status == 1 || ssd_status == 2) {
-                //     count++
-                //   }
-                // }
-                let rowdata = {
-                  Connected: sddData.connected,
-                  DeviceName: name,
-                  Status: sddData.e[4].v,
-                  Capacity: sddData.e[5].sv,
-                  Usage: sddData.e[6].v,
-                  Temp: sddData.e[2].v,
-                  Lifetime: sddData.e[3].v,
-                  UnexpectedPowerCycleCount: sddData.e[1].v,
-                  Read: sddData.e[7].v,
-                  Write: sddData.e[8].v,
-                  GroupName: ""
-                }
-                Diskdata.push(rowdata)
-              }
-              vm.$set(vm, "DeviceDisks", Diskdata)
             })
         }
-      },
-      getlastDevices(config) {
-        vm = this
-        let day = moment()
-        let oData = JSON.parse(config)
-        let DeviceData = []
-        let total = 0
-        // let sensorId = "/Disk/Disk1/Temperature"
-        // let beginTs = moment()
-        //   .startOf("day")
-        //   .format("YYYY-MM-DD HH:mm:ss.000")
-        // let endTs = moment()
-        //   .endOf("day")
-        //   .format("YYYY-MM-DD HH:mm:ss.000")
-        // DeviceOnApis.data.get
-        //   .histdata(agentId, plugin, sensorId, beginTs, endTs, "1000", "desc")
-        //   .then(function(xhr) {
-        //     console.log(xhr)
-        //   })
 
-        DeviceOnApis.data.get
-          .pluginLatestData(oData.did, oData.agentid, oData.plugin)
-          .then(function(xhr) {
-            let Diskdata = []
-            for (let data of xhr.data[oData.plugin].Disk) {
-              let name = ""
-              nowdevice = vm.deviceOptions.filter(
-                x => x.agentid === oData.agentid
-              )
-              let devicename = nowdevice[0].name
-
-              let rowdata = {
-                DeviceName: devicename.concat("", data.e[0].v),
-                Status: data.e[4].v,
-                Capacity: data.e[5].sv,
-                Usage: data.e[6].v,
-                Temp: data.e[2].v,
-                Lifetime: data.e[3].v,
-                UnexpectedPowerCycleCount: data.e[1].v,
-                Read: data.e[7].v,
-                Write: data.e[8].v,
-                GroupName: "TW"
-              }
-              Diskdata.push(rowdata)
+        var Diskdata = []
+        for (let sddData of DeviceData) {
+          total++
+          let device = deviceOptions.filter(
+            x => x.agentid == sddData.agentId
+          )
+          let name = device[0].name.concat("-", sddData.bn)
+          let ssd_status = sddData.e[4].v
+          if (sddData.connected) {
+            if (ssd_status == 0 || ssd_status == 1 || ssd_status == 2) {
+              count++
             }
-            vm.$set(vm.DeviceDisks, 0, Diskdata)
-          })
-          .catch(function(error) {}) //*/
+          }
+          //J-TODO  決定Coreanalyzer	Upgrade	Recovery內容
+          let rowdata = {
+            Connected: sddData.connected,
+            DeviceName: name,
+            Status: sddData.e[4].v,
+            Capacity: sddData.e[5].sv,
+            Usage: sddData.e[6].v,
+            Temp: sddData.e[2].v,
+            Lifetime: sddData.e[3].v,
+            UnexpectedPowerCycleCount: sddData.e[1].v,
+            Read: sddData.e[7].v,
+            Write: sddData.e[8].v,
+            GroupName: ""
+          }
+          Diskdata.push(rowdata)
+        }
+        vm.$set(vm, "deviceDisks", Diskdata)
+        vm.setOptionTotalssds(count, total)
       }
     },
     computed: {
-      item_riskiest_sort: function() {
-        return this.DeviceDisks.slice().sort((a, b) => a.Lifetime - b.Lifetime)
-      },
-      ssd_total: function() {
-        return this.DeviceDisks.length
+      totalRow: function () {
+        return this.deviceDisks.length
       }
     },
     watch: {
-      deviceOptions: function(deviceOptions) {
-        console.log
+      deviceOptions: function (deviceOptions) {
         this.getTableData(deviceOptions)
-        this.startAutoReport()
       }
     },
     data() {
       return {
+        option_totalssds: null,
         gid: 0,
         perPage: 5,
         currentPage: 1,
         alertcompount: selfalert,
         istriforTemp: true,
         isAlert: false,
-        isLine: false,
         isPieRead: false,
         isPieWrite: false,
         deviceOptions: [],
+        deviceDisks: [],
         alertwindow: {
           isBar: false,
-          isLine: false,
+          ispowerlossLine: false,
+          isTemperatureLine: false,
           isPieRead: false,
           isTempLine: false,
           isPieWrite: false
         },
+        rowpiedata: {},
+        ReadWorkloadData: [],
         titlegroup: [
           "5 Riskiest SSDs",
           "5 SSDs With Heavy Read Workloads",
@@ -1307,7 +1864,7 @@
             key: "DeviceName",
             sortable: false,
             thClass: ["ssdseeting"],
-            tdClass: ["ssdseeting", "ssdtd"]
+            tdClass: ["ssdseetingDeviceName", "ssdtd"]
           },
           {
             labels: "Capacity",
@@ -1473,8 +2030,7 @@
             Read: 400,
             Write: 200
           }
-        ],
-        DeviceDisks: []
+        ]
       }
     }
   })

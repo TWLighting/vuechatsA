@@ -18,7 +18,7 @@
     <b-container fluid class="bv-example-row">
       <b-row>
         <b-col sm="2" md="2">
-          <Sidebar></Sidebar>
+          <Sidebar :testp="testproparr"></Sidebar>
         </b-col>
         <b-col sm="10" md="10">
           <!-- first floor -->
@@ -86,13 +86,11 @@
               </a>
             </b-col>
             <b-col class="ssdcube">
-              <a class="point" @click="changePieWrite">
-                <Ssdprogress :title="titlegroup[2]" :items="items" :btype="'Write'">
-                  <b-col>
-                    <h5>Write(MB/s)</h5>
-                  </b-col>
-                </Ssdprogress>
-              </a>
+              <Ssdprogressclick :title="titlegroup[2]" :items="items" @bepiedata="settingclickpie">
+                <b-col>
+                  <h5>Write(MB/s)</h5>
+                </b-col>
+              </Ssdprogressclick>
             </b-col>
             <b-col class="ssdcube">
               <Totalgauge :title="titlegroup[4]" :items="items"></Totalgauge>
@@ -231,7 +229,8 @@
     <!--piecompount-->
     <!--J-NOTE Write圓餅圖未完成-->
     <component :is="alertcompount" v-if="alertwindow.isPieWrite" v-on:close-alert="changePieWrite">
-      <Piecube :title="titlegroup[2]" :items="items" :pietype="'Write'"></Piecube>
+      <!-- <Piecube :title="titlegroup[2]" :items="items" :pietype="'Write'"></Piecube>-->
+      <Onepiecube :title="titlegroup[2]" :piedata="piedata"></Onepiecube>
     </component>
     <!--widgetCoreanalyzer-->
     <component
@@ -255,7 +254,9 @@ import TempLine from "./components/tempLine";
 import Testalert from "./components/alert";
 import Linecube from "./components/linecube";
 import Piecube from "./components/piecube";
+import Onepiecube from "./components/onepiecube";
 import Ssdprogress from "./components/ssdprogress";
+import Ssdprogressclick from "./components/ssdprogressclick";
 import Totalgauge from "./components/charts/totalgauge";
 import Piegroupread from "./components/piegroupread";
 import Piechart from "./components/charts/peichart";
@@ -344,6 +345,7 @@ const widgetCoreanalyzer = {
         case "5":
           api = "";
           break;
+          ㄋ;
         case "6":
           api = "";
           break;
@@ -437,7 +439,9 @@ export default {
     Totalgauge,
     Testvuegauge,
     Piegroupread,
-    widgetCoreanalyzer
+    widgetCoreanalyzer,
+    Onepiecube,
+    Ssdprogressclick
   },
   beforeMount() {},
   mounted() {
@@ -448,7 +452,7 @@ export default {
       this.$set(this, "items", [
         {
           statusLight: 2,
-          Status: 10,
+          Status: 23,
           DeviceName: "DESKTOP-NIFFRRK-DISK1",
           Capacity: "30GB",
           Usage: "10%",
@@ -549,6 +553,14 @@ export default {
     changeRecovery() {
       this.alertwindow.isRecovery = !this.alertwindow.isRecovery;
     },
+    settingpiedata(data) {
+      let setting = { a: "ddd", b: "cccc" };
+      this.$set(this, "piedata", data);
+    },
+    settingclickpie(data) {
+      this.settingpiedata(data);
+      this.changePieWrite();
+    },
     //J-NOTE 可能要放進混入MIXIN之中
     statucolor(statusValue) {
       let color = "";
@@ -604,13 +616,20 @@ export default {
         this.$set(this.testitems, name, []);
         this.testitems[name].push({ a: "11", b: "12" });
       }
-
       // this.$set(this.testitems[name], 0, { a: "11", b: "12" });
       // this.testpush[name].push({a:'11',b:'12'})
       console.log(this.testitems);
+    },
+    //測試子元件watch能否
+    testprops() {
+      this.$set(this, "testproparr", !this.testproparr);
     }
   },
   created() {
+    self = this;
+    // setInterval(function() {
+    //   self.testprops();
+    // }, 2000);
     this.testscope();
     this.setItem();
   },
@@ -621,6 +640,8 @@ export default {
   },
   data() {
     return {
+      piedata: {},
+      testproparr: false,
       scopearr: [],
       perPage: 5,
       currentPage: 1,
@@ -691,7 +712,7 @@ export default {
           key: "DeviceName",
           sortable: false,
           thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
+          tdClass: ["ssdseetingDeviceName", "ssdtd"]
         },
         {
           labels: "Capacity",
