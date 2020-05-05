@@ -7,14 +7,11 @@
     </b-row>
     <b-row class="mb-1" v-for="rowdata in Loadsort" :key="rowdata.id">
       <b-col md="4">{{ rowdata.DeviceName }}:</b-col>
-
       <b-col md="8">
         <!--J-DONE  更換長條圖背景顏色-->
-        <a class="point" @click="getpiedata(rowdata)">
-          <div class="myProgress">
-            <div class="mybar" :style="settingbar(rowdata.Status,rowdata[btype])">{{rowdata[btype]}}</div>
-          </div>
-        </a>
+        <div class="myProgress">
+          <div class="mybar" :style="settingbar(rowdata.Status,rowdata[btype])">{{rowdata[btype]}}</div>
+        </div>
       </b-col>
       <hr class="mb-1 mt-1" size="1" width="80%" color="#ffffff" />
     </b-row>

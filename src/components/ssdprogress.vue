@@ -12,14 +12,6 @@
         <div class="myProgress">
           <div class="mybar" :style="settingbar(rowdata.Status,rowdata[btype])">{{rowdata[btype]}}</div>
         </div>
-        <!-- <b-progress
-          class="bgray"
-          :show-value="true"
-          :value="rowdata[btype]"
-          height="25px"
-          variant="info"
-          max="1000"
-        ></b-progress>-->
       </b-col>
       <hr class="mb-1 mt-1" size="1" width="80%" color="#ffffff" />
     </b-row>

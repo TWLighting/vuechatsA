@@ -1,13 +1,13 @@
 <template>
   <div>
-    <b-row class="d-flex">
-      <div class="piereadgroup" v-for="(option,index) in ssdoptions" :key="index">
+    <b-row class="d-flex" cols="2">
+      <b-col v-for="(option,index) in ssdoptions" :key="index">
         <!--
        <h5>{{option.name}}</h5>
         <hr size="1" width="100%" color="#ffffff" />
         -->
         <Piechart :chartData="option.chartData" :options="option.chartOptions"></Piechart>
-      </div>
+      </b-col>
     </b-row>
   </div>
 </template>
@@ -77,7 +77,7 @@ export default {
         let backgroundColor = [];
         let borderColor = [];
         let data = [];
-        let api = this.ssdoptionapi(option.name);
+        // let api = this.ssdoptionapi(option.name);
         // for API的資料
         for (let ssdrow of this.items) {
           let barcolor = this.statucolor(ssdrow.Status);
@@ -124,9 +124,7 @@ export default {
         { name: "fn1", chartData: null, chartOptions: null },
         { name: "fn2", chartData: null, chartOptions: null },
         { name: "fn3", chartData: null, chartOptions: null },
-        { name: "fn4", chartData: null, chartOptions: null },
-        { name: "fn5", chartData: null, chartOptions: null },
-        { name: "fn6", chartData: null, chartOptions: null }
+        { name: "fn4", chartData: null, chartOptions: null }
       ]
     };
   }

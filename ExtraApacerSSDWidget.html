@@ -1,5 +1,5 @@
+<!--192.168.1.35舊版本--->
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -72,15 +72,13 @@
       <!-- third floor -->
       <b-row cols="3">
         <b-col class="ssdcube">
-          <a class="point" @click="changePieRead">
-            <!--TAG--->
-            <Readworkprogress :title="titlegroup[1]" :deviceOptions="deviceOptions"
-              :testReadWorkloadData="ReadWorkloadData">
-              <b-col>
-                <h5>Read(MB/s)</h5>
-              </b-col>
-            </Readworkprogress>
-          </a>
+          <!--TAG--->
+          <Readworkprogress :title="titlegroup[1]" :deviceOptions="deviceOptions"
+            :testReadWorkloadData="ReadWorkloadData" @getreadpiedata="clickReadAllBar">
+            <b-col>
+              <h5>Read(MB/s)</h5>
+            </b-col>
+          </Readworkprogress>
         </b-col>
         <b-col class="ssdcube">
           <Writeworkprogress @getpiedata="clickWriteBar" :title="titlegroup[2]" :deviceOptions="deviceOptions">
@@ -184,7 +182,7 @@
     <!--piecompount-->
     <!--J-NOTE Read圓餅圖未完成-->
     <component :is="alertcompount" v-if="isPieRead" v-on:close-alert="changePieRead">
-      <Readloadpiecube :title="titlegroup[1]"></Readloadpiecube>
+      <Readloadpiecube :title="titlegroup[1]" :allrowpiedata='allrowpiedata'></Readloadpiecube>
     </component>
     <!--piecompount-->
     <!--J-NOTE Write圓餅圖未完成-->
@@ -1254,10 +1252,19 @@
             if (i == 0) {
               vue.$set(vue, 'BarMaxValue', vue.pluginReadWorkloadSortedData[i].value)
             }
-            ReadWorkloadrowdata[i] = { DeviceName: vue.pluginReadWorkloadSortedData[i].agent_name.concat('-', vue.pluginReadWorkloadSortedData[i].DiskName), value: vue.pluginReadWorkloadSortedData[i].value }
+            ReadWorkloadrowdata[i] = {
+              DeviceName: vue.pluginReadWorkloadSortedData[i].agent_name.concat('-', vue.pluginReadWorkloadSortedData[i].DiskName),
+              AgentName: vue.pluginReadWorkloadSortedData[i].agent_name,
+              AgentId: vue.pluginReadWorkloadSortedData[i].agent_id,
+              DiskName: vue.pluginReadWorkloadSortedData[i].DiskName,
+              value: vue.pluginReadWorkloadSortedData[i].value
+            }
           }
           vue.$set(vue, 'ReadWorkloadrowdata', ReadWorkloadrowdata)
         }
+      },
+      changePiedata(data) {
+        this.$emit('getreadpiedata', data)
       }
     },
     created() {
@@ -1269,6 +1276,7 @@
     <b-row class="justify-content-between">
       <slot></slot>
     </b-row>
+    <a class="point" @click="changePiedata(ReadWorkloadrowdata)" >
     <b-row class="mb-1" v-for="(rowdata,index) in ReadWorkloadrowdata" :key="index">
       <b-col md="12">
       <h6 class="set-title">{{ rowdata.DeviceName }}:</h6>
@@ -1284,6 +1292,7 @@
       </b-col>
       <hr class="mb-1 mt-1" size="1" width="95%" color="#ffffff" />
     </b-row>
+   </a> 
   </div>`,
     watch: {
       deviceOptions: function (value) {
@@ -1415,6 +1424,9 @@
         type: String,
         default: null
       },
+      allrowpiedata: {
+        type: Array
+      }
     },
     methods: {
       setPiecolor(sensorname) {
@@ -1447,39 +1459,29 @@
         }
         return color;
       },
-      addDiskName(pluginData, Diskname) {
-        if (pluginData.hasOwnProperty("data") && pluginData.data.length > 0) {
-          for (let start = 0; start < pluginData.data.length; start++) {
-            this.$set(pluginData.data[start], 'DiskName', Diskname)
-          }
-        }
-      },
-
       async getsensoridListdata(ssddata) {
         let beginTs = moment().format("YYYY-MM-DD 00:00:00.000")
         let endTs = moment().format("YYYY-MM-DD 23:59:59.000")
         let allsensordata = []
         for (let sensor of this.sensorList) {
           let sensorId = '/Disk/' + ssddata.DiskName + '/' + sensor
-          await this.getHisData(ssddata.agent_id, 'SSDStatus', sensorId, beginTs, endTs, '1').then(function (xhr) {
+          await this.getHisData(ssddata.AgentId, 'SSDStatus', sensorId, beginTs, endTs, '1').then(function (xhr) {
             allsensordata.push(xhr.data.itemList)
           })
         }
         return allsensordata
       },
       async setpiedata() {
-        this.pluginReadWorkloadSortedData = this.pluginReadWorkloadDisk1Data.data.concat(this.pluginReadWorkloadDisk2Data.data);
-        let copydata = this.pluginReadWorkloadSortedData.sort((a, b) => b.value - a.value).slice(0, 4);
-        for (let i = 0; i < copydata.length; i++) {
+
+        for (let i = 0; i < this.allrowpiedata.length; i++) {
           let labels = [];
           let backgroundColor = [];
           let borderColor = [];
           let data = [];
           let sensordata = null;
-          await this.getsensoridListdata(copydata[i]).then(function (res) {
+          await this.getsensoridListdata(this.allrowpiedata[i]).then(function (res) {
             sensordata = res
           });
-          // for API的資料
           for (let ssdrow of sensordata) {
             let barcolor = this.setPiecolor(ssdrow[0].n);
             labels.push(ssdrow[0].n);
@@ -1504,7 +1506,7 @@
           });
           this.ssdoptions[i].chartOptions = Object.assign({}, this.ssdoptions[i].chartOptions, {
             title: {
-              text: copydata[i].agent_name.concat('-', copydata[i].DiskName),
+              text: this.allrowpiedata[i].DeviceName,
               display: true,
               position: "top"
             },
@@ -1514,25 +1516,10 @@
             rotation: -0.7 * Math.PI
           });
         }
-      },
-      async getReadWorkloadAllData() {
-        let vue = this
-        await axios.all([this.getTopData('SSDStatus'.concat(
-          '/Disk/Disk1/ReadWorkload'
-        )), this.getTopData('SSDStatus'.concat(
-          '/Disk/Disk2/ReadWorkload'
-        ))])
-          .then(axios.spread(function (xhr1, xhr2) {
-            vue.$set(vue, 'pluginReadWorkloadDisk1Data', xhr1.data)
-            vue.addDiskName(vue.pluginReadWorkloadDisk1Data, 'Disk1')
-            vue.$set(vue, 'pluginReadWorkloadDisk2Data', xhr2.data)
-            vue.addDiskName(vue.pluginReadWorkloadDisk2Data, 'Disk2')
-          }));
-        vue.setpiedata()
       }
     },
     created() {
-      this.getReadWorkloadAllData();
+      this.setpiedata();
     },
     template: `<div>
     <b-row class="d-flex">
@@ -1549,9 +1536,6 @@
       return {
         // 固定按照功能分配API
         ssdoptions: [],
-        pluginReadWorkloadDisk1Data: {},
-        pluginReadWorkloadDisk2Data: {},
-        pluginReadWorkloadSortedData: {},
         sensorList: [
           'ReadLength 2K',
           'ReadLength 4K',
@@ -1607,6 +1591,18 @@
           setting = data
         }
         this.$set(this, 'rowpiedata', setting)
+      },
+      settingReadPieData(data) {
+        let setting = [];
+        console.log(data)
+        if (data.length > 0) {
+          setting = data
+        }
+        this.$set(this, 'allrowpiedata', setting)
+      },
+      clickReadAllBar(data) {
+        this.settingReadPieData(data)
+        this.changePieRead()
       },
       clickWriteBar(data) {
         this.settingPieData(data)
@@ -1770,7 +1766,9 @@
             UnexpectedPowerCycleCount: sddData.e[1].v,
             Read: sddData.e[7].v,
             Write: sddData.e[8].v,
-            GroupName: ""
+            GroupName: "",
+            Disk: sddData.bn,
+            AgentId: sddData.agentId
           }
           Diskdata.push(rowdata)
         }
@@ -1809,6 +1807,7 @@
           isTempLine: false,
           isPieWrite: false
         },
+        allrowpiedata: [],
         rowpiedata: {},
         ReadWorkloadData: [],
         titlegroup: [

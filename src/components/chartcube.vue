@@ -55,9 +55,9 @@ export default {
       let data = [];
 
       for (let ssdrow of this.riskiest) {
-        let barcolor = this.statucolor(ssdrow.Status);
+        let barcolor = this.statucolor(ssdrow.risk);
         labels.push(ssdrow.DeviceName);
-        data.push(ssdrow.Status);
+        data.push(ssdrow.risk);
         backgroundColor.push(barcolor);
         borderColor.push(barcolor);
       }
@@ -80,7 +80,7 @@ export default {
   },
   computed: {
     riskiest: function() {
-      return this.items.slice().sort((a, b) => a.Status - b.Status);
+      return this.items.slice().sort((a, b) => a.risk - b.risk);
     }
   },
   created() {

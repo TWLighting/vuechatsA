@@ -75,7 +75,6 @@ export default {
   created() {
     this.setbardata();
   },
-
   data() {
     return {
       chartData: null,

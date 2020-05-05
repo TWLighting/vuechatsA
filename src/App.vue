@@ -35,33 +35,6 @@
           <!-- secord floor -->
           <b-row>
             <b-col class="temperaturelist justify-content-center">
-              <!--J-NOTE 是否要使用切換功能-->
-              <!-- <Temperaturegauge
-                :items="items"
-                :TemperaturRange="TemperaturRange"
-                @chiesecolor="statucolor"
-              >
-                <template v-slot:header>
-                  <div>
-                    <h5>{{ titlegroup[5] }}</h5>
-                    <hr size="1" width="100%" color="#ffffff" />
-                  </div>
-                </template>
-              </Temperaturegauge>-->
-              <!--J-NOTE echarts-->
-              <!-- <title-row
-                :title="titlegroup[5]"
-                :showtri="true"
-                v-model="istriforTemp"
-                @changeTriangle="controlTriangle"
-              ></title-row>
-              <component
-                :is="Tempercontrol"
-                :title="titlegroup[5]"
-                :items="items"
-                :TemperaturRange="TemperaturRange"
-                @chiesecolor="statucolor"
-              ></component>-->
               <a class="point" @click="changeLine">
                 <Temperaturegauge2
                   :title="titlegroup[5]"
@@ -86,7 +59,12 @@
               </a>
             </b-col>
             <b-col class="ssdcube">
-              <Ssdprogressclick :title="titlegroup[2]" :items="items" @bepiedata="settingclickpie">
+              <Ssdprogressclick
+                :title="titlegroup[2]"
+                :items="items"
+                @bepiedata="settingclickpie"
+                :btype="'Write'"
+              >
                 <b-col>
                   <h5>Write(MB/s)</h5>
                 </b-col>
@@ -128,6 +106,11 @@
                       ></b-form-input>
                     </b-form-group>
                   </b-col>
+                  <b-col sm="2" md="2">
+                    <b-form-group label="pre pages" label-for="pages">
+                      <b-form-select id="pages" v-model="perPage" :options="perPageOption"></b-form-select>
+                    </b-form-group>
+                  </b-col>
                 </b-row>
               </b-form>
               <!--J-NOTE 在t-head中的其中一個欄位加入2個列下面的塞2欄 完成-->
@@ -149,7 +132,6 @@
                     <b-th class="ssdseeting" colspan="4"></b-th>
                   </b-tr>
                 </template>
-
                 <template v-slot:cell(Status)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
@@ -162,8 +144,8 @@
                 <template v-slot:cell(Coreanalyzer)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
-                      <a class="point" @click="changeCoreanalyzer">
-                        <b-icon icon="alert-circle" class="Coreanalyzericon"></b-icon>
+                      <a class="point" @click="changeCoreanalyzer(data.item)">
+                        <img src="../public/img/icon/bt-5a.png" alt />
                       </a>
                     </b-col>
                   </b-row>
@@ -173,7 +155,7 @@
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
                       <a class="point" @click="changePieRead">
-                        <b-icon icon="alert-circle" class="Recoveryicon"></b-icon>
+                        <img src="../public/img/icon/bt-6b.png" alt />
                       </a>
                     </b-col>
                   </b-row>
@@ -183,7 +165,7 @@
                   <b-row class="text-center" style="font-size:24px;">
                     <b-col class="py-2 mb-1">
                       <a class="point" @click="changePieRead">
-                        <b-icon icon="arrow-repeat" class="Recoveryicon"></b-icon>
+                        <img src="../public/img/icon/bt-7b.png" alt />
                       </a>
                     </b-col>
                   </b-row>
@@ -191,25 +173,34 @@
               </b-table>
               <!--J-NOTE 完成基本分頁功能 看是否要自訂頁數功能-->
               <b-pagination
-                pills
                 size="sm"
                 align="center"
+                first-text="First"
+                prev-text="Prev"
+                next-text="Next"
+                last-text="Last"
                 v-model="currentPage"
                 :total-rows="rows"
                 :per-page="perPage"
-                aria-controls="ssd-tb"
-              ></b-pagination>
+              >
+                <template v-slot:first-text>
+                  <img class="first-btn" />
+                </template>
+                <template v-slot:prev-text>
+                  <img class="prev-btn" />
+                </template>
+                <template v-slot:next-text>
+                  <img class="next-btn" />
+                </template>
+                <template v-slot:last-text>
+                  <img class="last-btn" />
+                </template>
+              </b-pagination>
             </b-col>
           </b-row>
         </b-col>
       </b-row>
     </b-container>
-    <!--J-NOTE 彈出組件的內容要依照點進去的內容顯示資料 完成-->
-    <!--alertcompount-->
-    <!-- <component :is="alertcompount" v-if="alertwindow.isBar" v-on:close-alert="changealert">
-      <Chartcube :title="titlegroup[0]" :items="items" :height="'500px'" :ifAlert="true"></Chartcube>
-    </component>-->
-    <!--Linecompount-->
     <component :is="alertcompount" v-if="alertwindow.isLine" v-on:close-alert="changeLine">
       <Linecube :title="titlegroup[3]" :items="items"></Linecube>
     </component>
@@ -229,7 +220,6 @@
     <!--piecompount-->
     <!--J-NOTE Write圓餅圖未完成-->
     <component :is="alertcompount" v-if="alertwindow.isPieWrite" v-on:close-alert="changePieWrite">
-      <!-- <Piecube :title="titlegroup[2]" :items="items" :pietype="'Write'"></Piecube>-->
       <Onepiecube :title="titlegroup[2]" :piedata="piedata"></Onepiecube>
     </component>
     <!--widgetCoreanalyzer-->
@@ -238,7 +228,7 @@
       v-if="alertwindow.isCoreanalyzer"
       v-on:close-alert="changeCoreanalyzer"
     >
-      <widgetCoreanalyzer :title="titlegroup[2]" :items="items" :pietype="'Write'"></widgetCoreanalyzer>
+      <Piegroupread :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piegroupread>
     </component>
   </div>
 </template>
@@ -252,6 +242,8 @@ import Temperaturegauge from "./components/temperaturegauge";
 import Temperaturegauge2 from "./components/temperaturegauge2";
 import TempLine from "./components/tempLine";
 import Testalert from "./components/alert";
+//小工具彈窗
+// import Widgetalert from "./components/widgetalert";
 import Linecube from "./components/linecube";
 import Piecube from "./components/piecube";
 import Onepiecube from "./components/onepiecube";
@@ -260,7 +252,7 @@ import Ssdprogressclick from "./components/ssdprogressclick";
 import Totalgauge from "./components/charts/totalgauge";
 import Piegroupread from "./components/piegroupread";
 import Piechart from "./components/charts/peichart";
-
+// import widgetCoreanalyzer from "./components/widgetCoreanalyzer";
 const Testvuegauge = {
   props: {
     props: {
@@ -295,134 +287,7 @@ const Testvuegauge = {
     return { gaugevalue: 70 };
   }
 };
-const widgetCoreanalyzer = {
-  props: {
-    items: {
-      type: Array,
-      default: null
-    },
-    title: {
-      type: String,
-      default: null
-    },
-    pietype: {
-      type: String
-    }
-  },
-  components: { Piechart },
-  computed: {},
-  methods: {
-    statucolor(statusValue) {
-      let color = "";
-      if (statusValue >= 90) {
-        color = "#006666";
-      } else if (statusValue >= 80) {
-        color = "#008E8A";
-      } else if (statusValue >= 60) {
-        color = "#00B2A9";
-      } else if (statusValue >= 20) {
-        color = "#FF7B22";
-      } else {
-        color = "#E52828";
-      }
-      return color;
-    },
-    ssdoptionapi(sessorid) {
-      let api = "";
-      switch (sessorid) {
-        case "1":
-          api = "";
-          break;
-        case "2":
-          api = "";
-          break;
-        case "3":
-          api = "";
-          break;
-        case "4":
-          api = "";
-          break;
-        case "5":
-          api = "";
-          break;
-          ㄋ;
-        case "6":
-          api = "";
-          break;
-      }
-      return api;
-    },
-    setpiedata() {
-      for (let option of this.ssdoptions) {
-        let labels = [];
-        let backgroundColor = [];
-        let borderColor = [];
-        let data = [];
-        let api = this.ssdoptionapi(option.name);
-        // for API的資料
-        for (let ssdrow of this.items) {
-          let barcolor = this.statucolor(ssdrow.Status);
-          labels.push(ssdrow.DeviceName);
-          data.push(ssdrow[this.pietype]);
-          backgroundColor.push(barcolor);
-          borderColor.push(barcolor);
-        }
-        // 創建charts圖形的必要屬性
-        option.chartData = Object.assign({}, option.chartData, {
-          labels: labels,
-          borderSkipped: "bottom",
-          datasets: [
-            {
-              fill: true,
-              label: this.title,
-              backgroundColor: backgroundColor,
-              borderColor: borderColor,
-              data: data
-            }
-          ]
-        });
-        option.chartOptions = Object.assign({}, option.chartOptions, {
-          title: {
-            text: option.name,
-            display: true,
-            position: "top"
-          },
-          legend: {
-            display: false
-          },
-          rotation: -0.7 * Math.PI
-        });
-      }
-    }
-  },
-  created() {
-    this.setpiedata();
-  },
-  template: `<div>
-    <b-row class="d-flex">
-      <div class="piereadgroup" v-for="(option,index) in ssdoptions" :key="index">
-        <!--
-       <h5>{{option.name}}</h5>
-        <hr size="1" width="100%" color="#ffffff" />
-        -->
-        <Piechart :chartData="option.chartData" :options="option.chartOptions"></Piechart>
-      </div>
-    </b-row>
-  </div>`,
-  data() {
-    return {
-      // 固定按照功能分配API
-      ssdoptions: [
-        { name: "Coreanalyzer1", chartData: null, chartOptions: null },
-        { name: "Coreanalyzer2", chartData: null, chartOptions: null },
-        { name: "Coreanalyzer3", chartData: null, chartOptions: null },
-        { name: "Coreanalyzer4", chartData: null, chartOptions: null },
-        { name: "Coreanalyzer5", chartData: null, chartOptions: null },
-        { name: "Coreanalyzer6", chartData: null, chartOptions: null }
-      ]
-    };
-  }
-};
+//
 const widgetRecovery = {};
 const widgetUpgrade = {};
 export default {
@@ -439,7 +304,6 @@ export default {
     Totalgauge,
     Testvuegauge,
     Piegroupread,
-    widgetCoreanalyzer,
     Onepiecube,
     Ssdprogressclick
   },
@@ -451,11 +315,13 @@ export default {
     setItem() {
       this.$set(this, "items", [
         {
+          Connected: true,
+          risk: 100,
           statusLight: 2,
-          Status: 23,
+          Status: "1",
           DeviceName: "DESKTOP-NIFFRRK-DISK1",
           Capacity: "30GB",
-          Usage: "10%",
+          Usage: 10,
           Temp: 100,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
@@ -464,14 +330,18 @@ export default {
           Upgrade: null,
           Recovery: null,
           Read: 520,
-          Write: 236
+          Write: 236,
+          Disk: "DISK1",
+          AgentId: "TEST"
         },
         {
+          Connected: false,
+          risk: 50,
           statusLight: 1,
-          Status: 60,
+          Status: "2",
           DeviceName: "DESKTOP-NIFFRRK-DISK2",
           Capacity: "30GB",
-          Usage: "60%",
+          Usage: 60,
           Temp: 80,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
@@ -480,14 +350,18 @@ export default {
           Upgrade: null,
           Recovery: null,
           Read: 200,
-          Write: 800
+          Write: 800,
+          Disk: "DISK2",
+          AgentId: "TEST"
         },
         {
+          Connected: true,
+          risk: 50,
           statusLight: 1,
-          Status: 85,
+          Status: "1",
           DeviceName: "DESKTOP-FVGFV-DISK2",
           Capacity: "30GB",
-          Usage: "85%",
+          Usage: 85,
           Temp: 30,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
@@ -496,14 +370,18 @@ export default {
           Upgrade: null,
           Recovery: null,
           Read: 300,
-          Write: 400
+          Write: 400,
+          Disk: "DISK2",
+          AgentId: "TEST"
         },
         {
+          Connected: true,
+          risk: 70,
           statusLight: 0,
-          Status: 60,
+          Status: "3",
           DeviceName: "DESKTOP-FVGFV-DISK1",
           Capacity: "30GB",
-          Usage: "60%",
+          Usage: 45,
           Temp: -30,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
@@ -512,14 +390,18 @@ export default {
           Upgrade: null,
           Recovery: null,
           Read: 520,
-          Write: 130
+          Write: 130,
+          Disk: "DISK1",
+          AgentId: "TEST"
         },
         {
+          Connected: true,
+          risk: 50,
           statusLight: 2,
-          Status: 20,
+          Status: "123",
           DeviceName: "DESKTOP-ggfgfgf-DISK2",
           Capacity: "30GB",
-          Usage: "20%",
+          Usage: 20,
           Temp: 20,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
@@ -528,7 +410,9 @@ export default {
           Upgrade: null,
           Recovery: 10,
           Read: 400,
-          Write: 200
+          Write: 200,
+          Disk: "DISK2",
+          AgentId: "TEST"
         }
       ]);
     },
@@ -544,7 +428,8 @@ export default {
     changePieWrite() {
       this.alertwindow.isPieWrite = !this.alertwindow.isPieWrite;
     },
-    changeCoreanalyzer() {
+    changeCoreanalyzer(data) {
+      console.log(data);
       this.alertwindow.isCoreanalyzer = !this.alertwindow.isCoreanalyzer;
     },
     changeUpgrade() {
@@ -561,6 +446,7 @@ export default {
       this.settingpiedata(data);
       this.changePieWrite();
     },
+
     //J-NOTE 可能要放進混入MIXIN之中
     statucolor(statusValue) {
       let color = "";
@@ -640,10 +526,17 @@ export default {
   },
   data() {
     return {
+      pagination: {
+        firsthover: false,
+        prevhover: false,
+        nexthover: false,
+        lasthover: false
+      },
       piedata: {},
       testproparr: false,
       scopearr: [],
-      perPage: 5,
+      perPage: 3,
+      perPageOption: [1, 2, 3, 4, 5],
       currentPage: 1,
       Linecompount: Linecube,
       alertcompount: Testalert,
