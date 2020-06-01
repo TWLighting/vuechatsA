@@ -21,6 +21,11 @@
           <Sidebar :testp="testproparr"></Sidebar>
         </b-col>
         <b-col sm="10" md="10">
+          <!-- first floor ver2.0 -->
+          <b-row>
+            <b-col sm="8" md="8" class="ssdcube"></b-col>
+            <b-col sm="4" md="4" class="ssdcube"></b-col>
+          </b-row>
           <!-- first floor -->
           <b-row cols="2">
             <b-col class="ssdcube">
