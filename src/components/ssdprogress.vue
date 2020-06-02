@@ -1,17 +1,24 @@
 <template>
   <div>
-    <h5>{{ this.title }}</h5>
-    <hr size="1" width="100%" color="#ffffff" />
-    <b-row class="justify-content-between">
-      <slot></slot>
-    </b-row>
-    <b-row class="mb-1" v-for="rowdata in Loadsort" :key="rowdata.id">
-      <b-col md="4">{{ rowdata.DeviceName }}:</b-col>
-      <b-col md="8">
-        <!--J-DONE  更換長條圖背景顏色-->
-        <div class="myProgress">
-          <div class="mybar" :style="settingbar(rowdata.Status,rowdata[btype])">{{rowdata[btype]}}</div>
-        </div>
+    <b-row class="mb-1" v-for="(rowdata,index) in Loadsort" :key="index">
+      <b-col md="12">
+        <h6 class="set-title">{{ rowdata.DeviceName }}:</h6>
+        <a class="point" @click="changePiedata(rowdata)">
+          <div class="myProgress">
+            <template v-if="index==0">
+              <div
+                class="mybar"
+                :style="settingbar(rowdata.Status,rowdata[btype])"
+              >{{rowdata[btype]}}</div>
+            </template>
+            <template v-else>
+              <div
+                class="mybar-right"
+                :style="settingbar(rowdata.Status,rowdata[btype])"
+              >{{rowdata[btype]}}</div>
+            </template>
+          </div>
+        </a>
       </b-col>
       <hr class="mb-1 mt-1" size="1" width="80%" color="#ffffff" />
     </b-row>
@@ -22,10 +29,6 @@ export default {
   props: {
     items: {
       type: Array,
-      default: null
-    },
-    title: {
-      type: String,
       default: null
     },
     btype: {
@@ -56,6 +59,21 @@ export default {
         background: this.statucolor(Status),
         width: String((value / 1000) * 100) + "%"
       };
+    },
+    picktype(type) {
+      let api = "";
+      switch (type) {
+        case "Read":
+          api = "getreadpiedata";
+          break;
+        case "Write":
+          api = "getpiedata";
+          break;
+      }
+      return api;
+    },
+    changePiedata(data) {
+      this.$emit(this.picktype(this.btype), data);
     }
   },
   computed: {

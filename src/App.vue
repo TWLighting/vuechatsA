@@ -23,11 +23,38 @@
         <b-col sm="10" md="10">
           <!-- first floor ver2.0 -->
           <b-row>
-            <b-col sm="8" md="8" class="ssdcube"></b-col>
-            <b-col sm="4" md="4" class="ssdcube"></b-col>
+            <b-col sm="8" md="8" class="ssdcube">
+              <h5>SSDs Health Status</h5>
+              <hr size="1" width="100%" color="#ffffff" />
+              <b-row cols="3">
+                <b-col class="d-flex" v-for="item in statusitems">
+                  <div class="status-cycrle">
+                    <vue-svg-gauge
+                      :start-angle="0"
+                      :end-angle="360"
+                      :value="1"
+                      :max="1"
+                      :gauge-color="[
+              { offset: 0, color:item.color },
+              { offset: 100, color:item.color }
+            ]"
+                      :separator-step="0"
+                      :scale-interval="0"
+                      :inner-radius="0"
+                    />
+                    <div class="d-flex justify-content-center">
+                      <p>{{item.value}}</p>
+                    </div>
+                  </div>
+                </b-col>
+              </b-row>
+            </b-col>
+            <b-col sm="4" md="4" class="ssdcube">
+              <Totalgauge :title="titlegroup[4]" :items="items"></Totalgauge>
+            </b-col>
           </b-row>
           <!-- first floor -->
-          <b-row cols="2">
+          <!-- <b-row cols="2">
             <b-col class="ssdcube">
               <Chartcube :title="titlegroup[0]" :items="items" v-if="items.length>0"></Chartcube>
             </b-col>
@@ -35,6 +62,29 @@
               <a class="point" @click="changeLine">
                 <Chartcube :title="titlegroup[3]" :items="items"></Chartcube>
               </a>
+            </b-col>
+          </b-row>-->
+          <!-- secord floor  ver2.0-->
+          <b-row cols="3">
+            <b-col class="ssdcube">
+              <Chartcube :title="titlegroup[0]" :items="items" v-if="items.length>0"></Chartcube>
+            </b-col>
+            <b-col class="ssdcube">
+              <a class="point" @click="changeLine">
+                <Chartcube :title="titlegroup[3]" :items="items"></Chartcube>
+              </a>
+            </b-col>
+            <b-col class="ssdcube">
+              <h5>Top 5 SSDs of Read/Write Workload (GB)</h5>
+              <hr size="1" width="100%" color="#ffffff" />
+              <b-tabs content-class="mt-3">
+                <b-tab title="Read" active>
+                  <Ssdprogress :items="items" :btype="'Read'"></Ssdprogress>
+                </b-tab>
+                <b-tab title="Write">
+                  <Ssdprogress :items="items" :btype="'Write'"></Ssdprogress>
+                </b-tab>
+              </b-tabs>
             </b-col>
           </b-row>
           <!-- secord floor -->
@@ -63,21 +113,8 @@
                 </Ssdprogress>
               </a>
             </b-col>
-            <b-col class="ssdcube">
-              <Ssdprogressclick
-                :title="titlegroup[2]"
-                :items="items"
-                @bepiedata="settingclickpie"
-                :btype="'Write'"
-              >
-                <b-col>
-                  <h5>Write(MB/s)</h5>
-                </b-col>
-              </Ssdprogressclick>
-            </b-col>
-            <b-col class="ssdcube">
-              <Totalgauge :title="titlegroup[4]" :items="items"></Totalgauge>
-            </b-col>
+            <b-col class="ssdcube"></b-col>
+            <b-col class="ssdcube"></b-col>
           </b-row>
           <!-- table floor -->
           <b-row>
@@ -253,11 +290,12 @@ import Linecube from "./components/linecube";
 import Piecube from "./components/piecube";
 import Onepiecube from "./components/onepiecube";
 import Ssdprogress from "./components/ssdprogress";
-import Ssdprogressclick from "./components/ssdprogressclick";
 import Totalgauge from "./components/charts/totalgauge";
 import Piegroupread from "./components/piegroupread";
 import Piechart from "./components/charts/peichart";
 // import widgetCoreanalyzer from "./components/widgetCoreanalyzer";
+//dev2.0新功能
+import { VueSvgGauge } from "vue-svg-gauge";
 const Testvuegauge = {
   props: {
     props: {
@@ -293,8 +331,7 @@ const Testvuegauge = {
   }
 };
 //
-const widgetRecovery = {};
-const widgetUpgrade = {};
+
 export default {
   components: {
     Sidebar,
@@ -310,7 +347,7 @@ export default {
     Testvuegauge,
     Piegroupread,
     Onepiecube,
-    Ssdprogressclick
+    VueSvgGauge
   },
   beforeMount() {},
   mounted() {
@@ -559,10 +596,10 @@ export default {
         isRecovery: false
       },
       titlegroup: [
-        "5 Riskiest SSDs",
+        "Top 5 Lifetime SSDs (Less than 50%)",
         "5 SSDs With Heavy Read Workloads",
         "5 SSDs With Heavy Write Workloads",
-        "5 SSDs With Unexpected Power",
+        "Top 5 Unexpected Power Loss SSDs",
         "Online/Total SSDs",
         "5 SSDs With Temperature Abnormalities"
       ],
@@ -695,7 +732,12 @@ export default {
         MIN: -45
       },
       items: [],
-      testitems: []
+      testitems: [],
+      statusitems: [
+        { color: "#00f0b4", value: 0 },
+        { color: "#008E8A", value: 20 },
+        { color: "#999999", value: 3 }
+      ]
     };
   }
 };

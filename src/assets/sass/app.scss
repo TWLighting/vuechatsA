@@ -73,16 +73,14 @@
 .Coreanalyzericon {
   background: #00f0b4;
 }
-.inner-text {
-  height: auto;
-  width: 100%;
+.status-cycrle {
+  position: relative;
 }
-.inner-text > p {
-  margin-top: -4rem;
-}
-.inner-text > span {
-  max-width: 100px;
-  color: #00f0b4;
+.status-cycrle p {
+  position: absolute;
+  top: 30%;
+  font-size: 4rem;
+  z-index: 100;
 }
 //alertbox
 .alertbox {
