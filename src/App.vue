@@ -88,7 +88,7 @@
             </b-col>
           </b-row>
           <!-- secord floor -->
-          <b-row>
+          <!--<b-row>
             <b-col class="temperaturelist justify-content-center">
               <a class="point" @click="changeLine">
                 <Temperaturegauge2
@@ -101,20 +101,15 @@
                 ></Temperaturegauge2>
               </a>
             </b-col>
-          </b-row>
-          <!-- third floor -->
-          <b-row cols="3">
+          </b-row>-->
+          <!-- third floor ver2.0 -->
+          <b-row cols="2">
             <b-col class="ssdcube">
-              <a class="point" @click="changePieRead">
-                <Ssdprogress :title="titlegroup[1]" :items="items" :btype="'Read'">
-                  <b-col>
-                    <h5>Read(MB/s)</h5>
-                  </b-col>
-                </Ssdprogress>
-              </a>
+              <Virticalbarcube :title="titlegroup[6]" :items="items"></Virticalbarcube>
             </b-col>
-            <b-col class="ssdcube"></b-col>
-            <b-col class="ssdcube"></b-col>
+            <b-col class="ssdcube">
+              <Temperaturecube></Temperaturecube>
+            </b-col>
           </b-row>
           <!-- table floor -->
           <b-row>
@@ -281,7 +276,6 @@ import Sidebar from "./components/Sidebar";
 import Chartcube from "./components/chartcube";
 import Gauge from "./components/charts/gauge";
 import Temperaturegauge from "./components/temperaturegauge";
-import Temperaturegauge2 from "./components/temperaturegauge2";
 import TempLine from "./components/tempLine";
 import Testalert from "./components/alert";
 //小工具彈窗
@@ -296,6 +290,9 @@ import Piechart from "./components/charts/peichart";
 // import widgetCoreanalyzer from "./components/widgetCoreanalyzer";
 //dev2.0新功能
 import { VueSvgGauge } from "vue-svg-gauge";
+import Virticalbarcube from "./components/virticalbarcube";
+
+import Temperaturecube from "./components/temperaturecube";
 const Testvuegauge = {
   props: {
     props: {
@@ -338,7 +335,7 @@ export default {
     Chartcube,
     Gauge,
     Temperaturegauge,
-    Temperaturegauge2,
+    Temperaturecube,
     TempLine,
     Linecube,
     Piecube,
@@ -347,7 +344,8 @@ export default {
     Testvuegauge,
     Piegroupread,
     Onepiecube,
-    VueSvgGauge
+    VueSvgGauge,
+    Virticalbarcube
   },
   beforeMount() {},
   mounted() {
@@ -601,7 +599,8 @@ export default {
         "5 SSDs With Heavy Write Workloads",
         "Top 5 Unexpected Power Loss SSDs",
         "Online/Total SSDs",
-        "5 SSDs With Temperature Abnormalities"
+        "5 SSDs With Temperature Abnormalities",
+        "Total Number of SSDs Lifetime Distribution"
       ],
       tableFrom: {
         acount: {

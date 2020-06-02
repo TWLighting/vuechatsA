@@ -1,28 +1,26 @@
 <!--J-NOTE 使用echart的gauge-->
 <template>
-  <div>
-    <b-row cols-sm="2" cols-md="5" class="d-flex">
-      <b-col sm="12" md="12">
-        <div>
-          <h5>{{ this.title }}</h5>
-          <hr size="1" width="100%" color="#ffffff" />
+  <div id="temp" class="tabs">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-2">
+          <ul class="nav nav-pills nav-stacked flex-column">
+            <li class="active">
+              <a href="#tab_a" data-toggle="pill">TAB 1</a>
+            </li>
+            <li>
+              <a href="#tab_b" data-toggle="pill">TAB 2</a>
+            </li>
+            <li>
+              <a href="#tab_c" data-toggle="pill">TAB 3</a>
+            </li>
+          </ul>
         </div>
-      </b-col>
-      <template v-if="items.length">
-        <b-col v-for="item in Temperature" :key="item.id">
-          <egauge
-            :style="{ width: '270px', height: '300px' }"
-            :tempvalue="item.Temp"
-            :name="item.DeviceName"
-          ></egauge>
-        </b-col>
-      </template>
-    </b-row>
+      </div>
+    </div>
   </div>
 </template>
 <script>
-import egauge from "./charts/egauge";
-
 export default {
   props: {
     title: {
@@ -41,7 +39,7 @@ export default {
       type: Boolean
     }
   },
-  components: { egauge },
+  components: "",
   methods: {
     fixtemp(temp) {
       return temp + 40;
@@ -70,11 +68,7 @@ export default {
       this.$emit("changeTriangle", !this.controltri);
     }
   },
-  computed: {
-    Temperature: function() {
-      return this.items.slice().sort((a, b) => b.Temp - a.Temp);
-    }
-  },
+  computed: {},
   data() {
     return {
       triangleTop: true,

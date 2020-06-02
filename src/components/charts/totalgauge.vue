@@ -15,6 +15,7 @@
 
 <script>
 import ECharts from "vue-echarts";
+import "echarts/lib/chart/gauge";
 
 export default {
   props: {
