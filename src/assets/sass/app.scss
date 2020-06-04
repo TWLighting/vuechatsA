@@ -244,17 +244,11 @@
   border: 0px;
 }
 
-#temp.tabs {
-  background-color: #f5f5f5;
-  padding-top: 30px;
-  padding-bottom: 30px;
-}
-
-#temp .tabs .tab-pane {
+#temp.tabs .tab-pane {
   margin-left: 20px;
 }
 
-#temp .tabs h3 {
+#temp.tabs h3 {
   font-size: 20px;
   margin-top: 10px;
   margin-bottom: 60px;
@@ -263,26 +257,33 @@
 #temp .tabs p {
   font-size: 14px;
 }
-
-#temp .tabs a {
-  font-size: 15px;
-  font-family: OpenSans, sans-serif;
-  font-weight: 700;
-  color: #fff;
-  padding: 30px;
-}
-
-#temp .tabs li {
-  background-color: #333;
+#temp.tabs li {
+  position: relative;
   margin-top: 1px;
   text-align: center;
-  height: 110px;
-  width: 110px;
-  padding-top: 45px;
+  width: 100px;
+  height: 60px;
+  padding-top: 15%;
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
-
-#temp .tabs li.active {
-  background-color: #ff8b38;
+#temp.tabs a {
+  font-size: 1rem;
+  font-family: OpenSans, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+.temprange {
+  position: absolute;
+  text-align: right;
+  width: 50px;
+  height: auto;
+  left: -54%;
+  bottom: 0;
+}
+.scrollbarshow .tab-content {
+  height: 400px;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }

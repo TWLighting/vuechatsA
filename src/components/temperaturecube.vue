@@ -1,23 +1,67 @@
 <!--J-NOTE 使用echart的gauge-->
 <template>
   <div id="temp" class="tabs">
-    <div class="container">
-      <div class="row">
-        <div class="col-xl-2">
-          <ul class="nav nav-pills nav-stacked flex-column">
-            <li class="active">
-              <a href="#tab_a" data-toggle="pill">TAB 1</a>
-            </li>
-            <li>
-              <a href="#tab_b" data-toggle="pill">TAB 2</a>
-            </li>
-            <li>
-              <a href="#tab_c" data-toggle="pill">TAB 3</a>
-            </li>
-          </ul>
+    <b-row>
+      <b-col>
+        <h5>{{ this.title }}</h5>
+        <hr size="1" width="100%" color="#ffffff" />
+      </b-col>
+    </b-row>
+    <b-row sm="12" md="12">
+      <b-col sm="2" md="2">
+        <b-row>
+          <b-col class="offset-md-3 offset-sm-3">
+            <ul
+              v-for="(rank,index) in temperatureRange"
+              class="nav nav-pills nav-stacked flex-column"
+              :key="index"
+            >
+              <template v-if="rank.TestNumber==0">
+                <li :style="{backgroundColor:rank.backgroundColor}">
+                  {{rank.sum}}
+                  <div class="temprange">
+                    <span>{{rank.temp}}</span>
+                  </div>
+                </li>
+              </template>
+              <template v-else>
+                <a @click="showTempList(rank.TestNumber,rank.title)" disabled>
+                  <li :style="{backgroundColor:rank.backgroundColor}">
+                    {{rank.sum}}
+                    <div class="temprange">
+                      <span>{{rank.temp}}</span>
+                    </div>
+                  </li>
+                </a>
+              </template>
+            </ul>
+          </b-col>
+        </b-row>
+      </b-col>
+      <b-col class="scrollbarshow">
+        <div class="tab-content">
+          <div class="tab-pane active">
+            <h5>{{this.temperatureRangeTitle}}</h5>
+            <b-table-simple hover small caption-top responsive>
+              <b-thead head-variant="dark">
+                <b-tr>
+                  <b-th>SSDName</b-th>
+                </b-tr>
+              </b-thead>
+              <b-tbody>
+                <b-tr
+                  v-if="tempRangeList.length>0"
+                  v-for="(item,index) in tempRangeList"
+                  :key="index"
+                >
+                  <b-td>{{item.SSDName}}</b-td>
+                </b-tr>
+              </b-tbody>
+            </b-table-simple>
+          </div>
         </div>
-      </div>
-    </div>
+      </b-col>
+    </b-row>
   </div>
 </template>
 <script>
@@ -39,11 +83,7 @@ export default {
       type: Boolean
     }
   },
-  components: "",
   methods: {
-    fixtemp(temp) {
-      return temp + 40;
-    },
     statucolor(statusValue) {
       let color = "";
       if (statusValue >= 90) {
@@ -66,13 +106,87 @@ export default {
       this.triangleTop = !this.triangleTop;
       this.triangleBottom = !this.triangleBottom;
       this.$emit("changeTriangle", !this.controltri);
+    },
+    getRandomIntInclusive(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min; // 含最大值，含最小值
+    },
+    settingTemp() {
+      for (let st = 0; st <= this.temperatureRange.length; st++) {
+        this.$set(
+          this.temperatureRange[st],
+          "sum",
+          this.getRandomIntInclusive(1, 500)
+        );
+      }
+    },
+    showTempList(TestNumber, title) {
+      let count = 0;
+      let list = [];
+      while (TestNumber > count) {
+        list.push({ SSDName: "DESKTOP-ggfgfgf-DISK2" });
+        count++;
+      }
+      this.$set(this, "tempRangeList", list);
+      this.$set(this, "temperatureRangeTitle", title);
     }
+  },
+  created() {
+    this.settingTemp();
+    this.showTempList(50);
   },
   computed: {},
   data() {
     return {
       triangleTop: true,
-      triangleBottom: false
+      triangleBottom: false,
+      temperatureRangeTitle: "80 above",
+      temperatureRange: [
+        {
+          temp: "80°C",
+          backgroundColor: "#ff0000",
+          TestNumber: 50,
+          title: "80 above",
+          sum: 0
+        },
+        {
+          temp: "70°C",
+          backgroundColor: "#ffc000",
+          TestNumber: 20,
+          title: "70°C~80°C of SSDs",
+          sum: 0
+        },
+        {
+          temp: "60°C",
+          backgroundColor: "#ffff00",
+          TestNumber: 5,
+          title: "60°C~70°C of SSDs",
+          sum: 0
+        },
+        {
+          temp: "0°C",
+          backgroundColor: "#a6a6a6",
+          TestNumber: 0,
+          title: "0°C~60°C of SSDs",
+          sum: 0
+        },
+        {
+          temp: "-25°C",
+          backgroundColor: "#ffc000",
+          TestNumber: 4,
+          title: "-25°C~0°C of SSDs",
+          sum: 0
+        },
+        {
+          temp: "-40°C",
+          backgroundColor: "#ff0000",
+          TestNumber: 9,
+          title: "-40°C~-25°C of SSDs",
+          sum: 0
+        }
+      ],
+      tempRangeList: []
     };
   }
 };

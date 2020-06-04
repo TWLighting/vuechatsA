@@ -27,25 +27,49 @@
               <h5>SSDs Health Status</h5>
               <hr size="1" width="100%" color="#ffffff" />
               <b-row cols="3">
-                <b-col class="d-flex" v-for="item in statusitems">
-                  <div class="status-cycrle">
-                    <vue-svg-gauge
-                      :start-angle="0"
-                      :end-angle="360"
-                      :value="1"
-                      :max="1"
-                      :gauge-color="[
+                <b-col class="d-flex" v-for="(item,index) in statusitems" :key="index">
+                  <template v-if="item.status=='Healthy'">
+                    <div class="status-cycrle">
+                      <vue-svg-gauge
+                        :start-angle="0"
+                        :end-angle="360"
+                        :value="1"
+                        :max="1"
+                        :gauge-color="[
               { offset: 0, color:item.color },
               { offset: 100, color:item.color }
             ]"
-                      :separator-step="0"
-                      :scale-interval="0"
-                      :inner-radius="0"
-                    />
-                    <div class="d-flex justify-content-center">
-                      <p>{{item.value}}</p>
+                        :separator-step="0"
+                        :scale-interval="0"
+                        :inner-radius="0"
+                      />
+                      <div class="d-flex justify-content-center">
+                        <p>{{item.value}}</p>
+                      </div>
                     </div>
-                  </div>
+                  </template>
+                  <template v-else>
+                    <a class="point" @click="changeStatusList(item)">
+                      <div class="status-cycrle">
+                        <vue-svg-gauge
+                          :start-angle="0"
+                          :end-angle="360"
+                          :value="1"
+                          :max="1"
+                          :gauge-color="[
+              { offset: 0, color:item.color },
+              { offset: 100, color:item.color }
+            ]"
+                          :separator-step="0"
+                          :scale-interval="0"
+                          :inner-radius="0"
+                        />
+                        <div class="d-flex justify-content-center">
+                          <p>{{item.value}}</p>
+                        </div>
+                      </div>
+                    </a>
+                  </template>
                 </b-col>
               </b-row>
             </b-col>
@@ -53,17 +77,7 @@
               <Totalgauge :title="titlegroup[4]" :items="items"></Totalgauge>
             </b-col>
           </b-row>
-          <!-- first floor -->
-          <!-- <b-row cols="2">
-            <b-col class="ssdcube">
-              <Chartcube :title="titlegroup[0]" :items="items" v-if="items.length>0"></Chartcube>
-            </b-col>
-            <b-col class="ssdcube">
-              <a class="point" @click="changeLine">
-                <Chartcube :title="titlegroup[3]" :items="items"></Chartcube>
-              </a>
-            </b-col>
-          </b-row>-->
+
           <!-- secord floor  ver2.0-->
           <b-row cols="3">
             <b-col class="ssdcube">
@@ -87,28 +101,13 @@
               </b-tabs>
             </b-col>
           </b-row>
-          <!-- secord floor -->
-          <!--<b-row>
-            <b-col class="temperaturelist justify-content-center">
-              <a class="point" @click="changeLine">
-                <Temperaturegauge2
-                  :title="titlegroup[5]"
-                  :items="items"
-                  :controltri="istriforTemp"
-                  :TemperaturRange="TemperaturRange"
-                  @chiesecolor="statucolor"
-                  @changeTriangle="controlTriangle"
-                ></Temperaturegauge2>
-              </a>
-            </b-col>
-          </b-row>-->
           <!-- third floor ver2.0 -->
           <b-row cols="2">
             <b-col class="ssdcube">
               <Virticalbarcube :title="titlegroup[6]" :items="items"></Virticalbarcube>
             </b-col>
             <b-col class="ssdcube">
-              <Temperaturecube></Temperaturecube>
+              <Temperaturecube :title="titlegroup[7]"></Temperaturecube>
             </b-col>
           </b-row>
           <!-- table floor -->
@@ -135,11 +134,12 @@
                     </b-form-group>
                   </b-col>
                   <b-col sm="2" md="2">
-                    <b-form-group label="Keyword Search" label-for="Keyword">
+                    <b-form-group label="Platform Search" label-for="Keyword">
                       <b-form-input
+                        type="search"
                         id="Keyword"
                         v-model="tableFrom.keyword.value"
-                        placeholder="ALL"
+                        placeholder="Type to Search"
                       ></b-form-input>
                     </b-form-group>
                   </b-col>
@@ -160,20 +160,34 @@
                 :items="items"
                 :per-page="perPage"
                 :current-page="currentPage"
+                :filter="tableFrom.keyword.value"
                 class="ssdtable"
               >
-                <template v-slot:thead-top="data">
-                  <b-tr rowspan="2">
-                    <b-th class="ssdseeting" colspan="6"></b-th>
-                    <b-th class="ssdseeting" colspan="2">Weekly Workload(GB)</b-th>
-                    <b-th class="ssdseeting" colspan="4"></b-th>
-                  </b-tr>
-                </template>
                 <template v-slot:cell(Status)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
                       <!--J-DONE：處理圓點燈號顏色-->
-                      <b-icon icon="circle-fill" :style="{ color: statucolor(data.value) }"></b-icon>
+                      <b-icon icon="circle-fill" :style="{ color: setlightcolor(data.item) }"></b-icon>
+                    </b-col>
+                  </b-row>
+                </template>
+                <!--J-TODO 表單小工具按鈕SSD INFO-->
+                <template v-slot:cell(ssdinfo)="data">
+                  <b-row class="text-center" style="font-size: 24px;">
+                    <b-col class="py-2 mb-1">
+                      <a class="point" @click="changeSsdinfo()">
+                        <b-button variant="outline-primary">ICON</b-button>
+                      </a>
+                    </b-col>
+                  </b-row>
+                </template>
+                <!--J-TODO 表單小工具按鈕 S.M.A.R.T-->
+                <template v-slot:cell(smart)="data">
+                  <b-row class="text-center" style="font-size: 24px;">
+                    <b-col class="py-2 mb-1">
+                      <a class="point" @click="changeSmart()">
+                        <b-button variant="outline-primary">ICON</b-button>
+                      </a>
                     </b-col>
                   </b-row>
                 </template>
@@ -181,7 +195,7 @@
                 <template v-slot:cell(Coreanalyzer)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
-                      <a class="point" @click="changeCoreanalyzer(data.item)">
+                      <a class="point" @click="changeCoreanalyzer()">
                         <img src="../public/img/icon/bt-5a.png" alt />
                       </a>
                     </b-col>
@@ -191,7 +205,7 @@
                 <template v-slot:cell(Upgrade)="data">
                   <b-row class="text-center" style="font-size: 24px;">
                     <b-col class="py-2 mb-1">
-                      <a class="point" @click="changePieRead">
+                      <a class="point" @click="changePieRead()">
                         <img src="../public/img/icon/bt-6b.png" alt />
                       </a>
                     </b-col>
@@ -201,7 +215,7 @@
                 <template v-slot:cell(Recovery)="data">
                   <b-row class="text-center" style="font-size:24px;">
                     <b-col class="py-2 mb-1">
-                      <a class="point" @click="changePieRead">
+                      <a class="point" @click="changePieRead()">
                         <img src="../public/img/icon/bt-7b.png" alt />
                       </a>
                     </b-col>
@@ -267,6 +281,23 @@
     >
       <Piegroupread :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piegroupread>
     </component>
+    <!--新增SSD INDO列表功能-->
+    <component :is="alertcompount" v-if="alertwindow.isSsdinfo" v-on:close-alert="changeSsdinfo">
+      <Ssdinfo></Ssdinfo>
+    </component>
+    <!--新增SSD S.M.A.R.T列表功能-->
+    <component :is="alertcompount" v-if="alertwindow.isSmart" v-on:close-alert="changeSmart">
+      <Smartlist></Smartlist>
+    </component>
+    <!--新增顯示危險狀態列表功能 first row-->
+    <component
+      :is="alertcompount"
+      v-if="alertwindow.isStatusList"
+      v-on:close-alert="changeStatusList"
+    >
+      <!--帶值到compent後打API過去-->
+      <Statuslist :clickStatusList="clickStatusList"></Statuslist>
+    </component>
   </div>
 </template>
 <script src="https://lib.baomitu.com/dayjs/1.8.13/dayjs.min.js"></script>
@@ -291,8 +322,10 @@ import Piechart from "./components/charts/peichart";
 //dev2.0新功能
 import { VueSvgGauge } from "vue-svg-gauge";
 import Virticalbarcube from "./components/virticalbarcube";
-
 import Temperaturecube from "./components/temperaturecube";
+import Smartlist from "./components/smartlist";
+import Ssdinfo from "./components/ssdinfo";
+import Statuslist from "./components/statuslist";
 const Testvuegauge = {
   props: {
     props: {
@@ -345,7 +378,10 @@ export default {
     Piegroupread,
     Onepiecube,
     VueSvgGauge,
-    Virticalbarcube
+    Virticalbarcube,
+    Smartlist,
+    Ssdinfo,
+    Statuslist
   },
   beforeMount() {},
   mounted() {
@@ -357,18 +393,20 @@ export default {
         {
           Connected: true,
           risk: 100,
-          statusLight: 2,
-          Status: "1",
+          Status: 0,
           DeviceName: "DESKTOP-NIFFRRK-DISK1",
+          Model: "SV250-M242",
+          SeiresNumber: "1321515",
+          FW: "DFDD545F",
           Capacity: "30GB",
           Usage: 10,
-          Temp: 100,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
-          GroupName: "HQ",
           Coreanalyzer: null,
           Upgrade: null,
           Recovery: null,
+          ssdinfo: null,
+          smart: null,
           Read: 520,
           Write: 236,
           Disk: "DISK1",
@@ -377,18 +415,21 @@ export default {
         {
           Connected: false,
           risk: 50,
-          statusLight: 1,
-          Status: "2",
+          Status: 2,
           DeviceName: "DESKTOP-NIFFRRK-DISK2",
+          Model: "EV451-F112",
+          SeiresNumber: "1123584",
+          FW: "DFJLJ787",
           Capacity: "30GB",
           Usage: 60,
           Temp: 80,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
-          GroupName: "HQ",
           Coreanalyzer: null,
           Upgrade: null,
           Recovery: null,
+          ssdinfo: null,
+          smart: null,
           Read: 200,
           Write: 800,
           Disk: "DISK2",
@@ -397,18 +438,21 @@ export default {
         {
           Connected: true,
           risk: 50,
-          statusLight: 1,
-          Status: "1",
+          Status: 1,
           DeviceName: "DESKTOP-FVGFV-DISK2",
+          Model: "RE787-G879",
+          SeiresNumber: "4458877",
+          FW: "DD5GBV5",
           Capacity: "30GB",
           Usage: 85,
           Temp: 30,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
-          GroupName: "HQ",
           Coreanalyzer: null,
           Upgrade: null,
           Recovery: null,
+          ssdinfo: null,
+          smart: null,
           Read: 300,
           Write: 400,
           Disk: "DISK2",
@@ -417,18 +461,21 @@ export default {
         {
           Connected: true,
           risk: 70,
-          statusLight: 0,
-          Status: "3",
+          Status: 2,
           DeviceName: "DESKTOP-FVGFV-DISK1",
+          Model: "FB456-G552",
+          SeiresNumber: "454644",
+          FW: "GTR7814",
           Capacity: "30GB",
           Usage: 45,
           Temp: -30,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
-          GroupName: "HQ",
           Coreanalyzer: null,
           Upgrade: null,
           Recovery: null,
+          ssdinfo: null,
+          smart: null,
           Read: 520,
           Write: 130,
           Disk: "DISK1",
@@ -437,18 +484,21 @@ export default {
         {
           Connected: true,
           risk: 50,
-          statusLight: 2,
-          Status: "123",
+          Status: -123,
           DeviceName: "DESKTOP-ggfgfgf-DISK2",
+          Model: "RE488-E874",
+          SeiresNumber: "5456613",
+          FW: "VAQ78F44",
           Capacity: "30GB",
           Usage: 20,
           Temp: 20,
           UnexpectedPowerCycleCount: 98,
           WeeklyWorkload: 520,
-          GroupName: "HQ",
           Coreanalyzer: null,
           Upgrade: null,
           Recovery: 10,
+          ssdinfo: null,
+          smart: null,
           Read: 400,
           Write: 200,
           Disk: "DISK2",
@@ -462,7 +512,7 @@ export default {
     changeTempLine() {
       this.isTempLine = !this.isTempLine;
     },
-    changePieRead() {
+    changePieWrite() {
       this.alertwindow.isPieRead = !this.alertwindow.isPieRead;
     },
     changePieWrite() {
@@ -478,6 +528,17 @@ export default {
     changeRecovery() {
       this.alertwindow.isRecovery = !this.alertwindow.isRecovery;
     },
+    changeSsdinfo() {
+      this.alertwindow.isSsdinfo = !this.alertwindow.isSsdinfo;
+    },
+    changeSmart() {
+      this.alertwindow.isSmart = !this.alertwindow.isSmart;
+    },
+    changeStatusList(rowdata) {
+      this.$set(this, "clickStatusList", rowdata);
+      this.alertwindow.isStatusList = !this.alertwindow.isStatusList;
+    },
+
     settingpiedata(data) {
       let setting = { a: "ddd", b: "cccc" };
       this.$set(this, "piedata", data);
@@ -500,6 +561,26 @@ export default {
         color = "#FF7B22";
       } else {
         color = "#E52828";
+      }
+      return color;
+    },
+    setlightcolor(ssd) {
+      let color = "";
+      if (ssd.Connected) {
+        if (ssd.Status == 0) {
+          color = "#D20000";
+        }
+        if (ssd.Status == 1) {
+          color = "#FFFF00";
+        }
+        if (ssd.Status == 2) {
+          color = "#00B050";
+        }
+        if (ssd.Status == -1 || ssd.Status == -123) {
+          color = "#999999";
+        }
+      } else {
+        color = "#999999";
       }
       return color;
     },
@@ -591,7 +672,10 @@ export default {
         isTempLine: false,
         isCoreanalyzer: false,
         isUpgrade: false,
-        isRecovery: false
+        isRecovery: false,
+        isSsdinfo: false,
+        isSmart: false,
+        isStatusList: false
       },
       titlegroup: [
         "Top 5 Lifetime SSDs (Less than 50%)",
@@ -600,7 +684,8 @@ export default {
         "Top 5 Unexpected Power Loss SSDs",
         "Online/Total SSDs",
         "5 SSDs With Temperature Abnormalities",
-        "Total Number of SSDs Lifetime Distribution"
+        "Total Number of SSDs Lifetime Distribution",
+        "SSDs Temperature Monitoring"
       ],
       tableFrom: {
         acount: {
@@ -635,91 +720,64 @@ export default {
       },
       fields: [
         {
-          labels: "Status",
+          label: "SSD Status",
           key: "Status",
           sortable: true,
           thClass: ["ssdseeting"],
           tdClass: ["ssdseeting", "ssdtd"]
         },
         {
-          labels: "Device Name",
+          label: "DevicePlatform",
           key: "DeviceName",
           sortable: false,
           thClass: ["ssdseeting"],
           tdClass: ["ssdseetingDeviceName", "ssdtd"]
         },
         {
-          labels: "Capacity",
-          key: "Capacity",
+          label: "SSD Model",
+          key: "Model",
           sortable: true,
           thClass: ["ssdseeting"],
           tdClass: ["ssdseeting", "ssdtd"]
         },
         {
-          labels: "Usage",
-          key: "Usage",
-          sortable: false,
-          thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
-        },
-        {
-          labels: "Temp.",
-          key: "Temp",
-          sortable: false,
-          thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
-        },
-        {
-          labels: "Unexpected Power Cycle Count",
-          key: "UnexpectedPowerCycleCount",
-          sortable: false,
-          thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
-        },
-        // {
-        //   labels: "Weekly Workload (GB)",
-        //   key: "UnexpectedPowerCycleCount",
-        //   sortable: false,
-        //   thClass: ["ssdseeting"],
-        //   tdClass: ["ssdseeting", "ssdtd"]
-        // },
-        {
-          labels: "Read",
-          key: "Read",
-          sortable: false,
-          thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
-        },
-        {
-          labels: "Write",
-          key: "Write",
-          sortable: false,
-          thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
-        },
-        {
-          labels: "Group Name",
-          key: "GroupName",
+          label: "SSD S/N",
+          key: "SeiresNumber",
           sortable: true,
           thClass: ["ssdseeting"],
           tdClass: ["ssdseeting", "ssdtd"]
         },
         {
-          labels: "Coreanalyzer",
+          label: "SSD FW",
+          key: "FW",
+          sortable: false,
+          thClass: ["ssdseeting"],
+          tdClass: ["ssdseeting", "ssdtd"]
+        },
+        {
+          label: "SSD Info",
+          key: "ssdinfo",
+          sortable: false,
+          thClass: ["ssdseeting"],
+          tdClass: ["ssdseeting", "ssdtd"]
+        },
+        {
+          label: "S.M.A.R.T",
+          key: "smart",
+          sortable: false,
+          thClass: ["ssdseeting"],
+          tdClass: ["ssdseeting", "ssdtd"]
+        },
+        {
+          label: "Coreanalyzer",
           key: "Coreanalyzer",
           sortable: false,
           thClass: ["ssdseeting"],
           tdClass: ["ssdseeting", "ssdtd"]
         },
+
         {
-          labels: "F/W Upgrade",
-          key: "Upgrade",
-          sortable: false,
-          thClass: ["ssdseeting"],
-          tdClass: ["ssdseeting", "ssdtd"]
-        },
-        {
-          labels: "OS Recovery",
+          label: "OS Recovery",
           key: "Recovery",
           sortable: false,
           thClass: ["ssdseeting"],
@@ -733,10 +791,11 @@ export default {
       items: [],
       testitems: [],
       statusitems: [
-        { color: "#00f0b4", value: 0 },
-        { color: "#008E8A", value: 20 },
-        { color: "#999999", value: 3 }
-      ]
+        { status: "Critical", color: "#D20000", value: 5 },
+        { status: "Warning", color: "#FFFF00", value: 20 },
+        { status: "Healthy", color: "#00B050", value: 3 }
+      ],
+      clickStatusList: {}
     };
   }
 };
