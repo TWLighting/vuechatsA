@@ -2,7 +2,11 @@
   <div>
     <h5>{{ this.title }}</h5>
     <hr size="1" width="100%" color="#ffffff" />
-    <v-chart :options="option" />
+    <b-row>
+      <b-col class="d-flex justify-content-center">
+        <v-chart :style="{width:'300px',height:'300px'}" :options="option" />
+      </b-col>
+    </b-row>
   </div>
 </template>
 

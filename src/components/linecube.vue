@@ -53,12 +53,13 @@ export default {
         );
         // 設定每個線段樣式
         let rowdata = {};
+        console.log(ssdrow.risk);
         rowdata.label = unexpectedrow[0].name;
-        rowdata.backgroundColor = this.statucolor(ssdrow.Status);
-        rowdata.borderColor = this.statucolor(ssdrow.Status); // 設定線的顏色
-        rowdata.pointBorderColor = this.statucolor(ssdrow.Status);
-        rowdata.pointBackgroundColor = this.statucolor(ssdrow.Status); // 設定點的顏色
-        rowdata.pointHoverBackgroundColor = this.statucolor(ssdrow.Status); // 設定點的顏色
+        rowdata.backgroundColor = this.statucolor(ssdrow.risk);
+        rowdata.borderColor = this.statucolor(ssdrow.risk); // 設定線的顏色
+        rowdata.pointBorderColor = this.statucolor(ssdrow.risk);
+        rowdata.pointBackgroundColor = this.statucolor(ssdrow.risk); // 設定點的顏色
+        rowdata.pointHoverBackgroundColor = this.statucolor(ssdrow.risk); // 設定點的顏色
         rowdata.lineTension = 0; // 顯示折線圖，不使用曲線
         rowdata.data = unexpectedrow[0].unexpectedday;
         rowdata.pointBorderWidth = 1;
@@ -104,6 +105,12 @@ export default {
       ],
       chartData: null,
       chartOptions: {
+        legend: {
+          position: "right",
+          fullWidth: false,
+          align: "left",
+          labels: { boxWidth: 20 }
+        },
         scales: {
           yAxes: [
             {

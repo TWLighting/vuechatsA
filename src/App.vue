@@ -27,7 +27,7 @@
               <h5>SSDs Health Status</h5>
               <hr size="1" width="100%" color="#ffffff" />
               <b-row cols="3">
-                <b-col class="d-flex" v-for="(item,index) in statusitems" :key="index">
+                <b-col v-for="(item,index) in statusitems" :key="index">
                   <template v-if="item.status=='Healthy'">
                     <div class="status-cycrle">
                       <vue-svg-gauge
@@ -260,9 +260,6 @@
       <TempLine :title="titlegroup[5]" :items="items" @chiesecolor="statucolor"></TempLine>
     </component>
 
-    <component :is="alertcompount" v-if="alertwindow.isLine" v-on:close-alert="changeLine">
-      <Linecube :title="titlegroup[3]" :items="items"></Linecube>
-    </component>
     <!--J-TODO Read圓餅圖6種分析-->
     <component :is="alertcompount" v-if="alertwindow.isPieRead" v-on:close-alert="changePieRead">
       <!-- <Piecube :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piecube>-->
