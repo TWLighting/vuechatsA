@@ -41,7 +41,7 @@
       <b-col class="scrollbarshow">
         <div class="tab-content">
           <div class="tab-pane active">
-            <h5>{{this.temperatureRangeTitle}}</h5>
+            <h5>{{this.tempRangeList.title}}</h5>
             <b-table-simple hover small caption-top responsive>
               <b-thead head-variant="dark">
                 <b-tr>
@@ -49,12 +49,11 @@
                 </b-tr>
               </b-thead>
               <b-tbody>
-                <b-tr
-                  v-if="tempRangeList.length>0"
-                  v-for="(item,index) in tempRangeList"
-                  :key="index"
-                >
-                  <b-td>{{item.SSDName}}</b-td>
+                <b-tr v-for="(item,index) in tempRangeList.lists" :key="index">
+                  <b-td
+                    class="point"
+                    @click="showLineChart(tempRangeList.title,item)"
+                  >{{item.SSDName}}</b-td>
                 </b-tr>
               </b-tbody>
             </b-table-simple>
@@ -128,20 +127,23 @@ export default {
         list.push({ SSDName: "DESKTOP-ggfgfgf-DISK2" });
         count++;
       }
-      this.$set(this, "tempRangeList", list);
-      this.$set(this, "temperatureRangeTitle", title);
+      this.$set(this.tempRangeList, "lists", list);
+      this.$set(this.tempRangeList, "title", title);
+    },
+    showLineChart(title, list) {
+      // 傳送API資料回父元件
+      this.$emit("changeTempRow", { title: title, lists: list });
     }
   },
   created() {
+    this.showTempList(50, "80 above");
     this.settingTemp();
-    this.showTempList(50);
   },
   computed: {},
   data() {
     return {
       triangleTop: true,
       triangleBottom: false,
-      temperatureRangeTitle: "80 above",
       temperatureRange: [
         {
           temp: "80°C",
@@ -186,7 +188,10 @@ export default {
           sum: 0
         }
       ],
-      tempRangeList: []
+      tempRangeList: {
+        title: "80 above",
+        lists: []
+      }
     };
   }
 };

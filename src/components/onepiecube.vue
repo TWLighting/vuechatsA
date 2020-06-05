@@ -11,10 +11,6 @@ import Piechart from "./charts/peichart";
 
 export default {
   props: {
-    items: {
-      type: Array,
-      default: null
-    },
     title: {
       type: String,
       default: null
@@ -42,20 +38,28 @@ export default {
       return color;
     },
     setbardata() {
-      console.log(this.piedata);
+      // console.log(this.piedata);
       let labels = [];
       let backgroundColor = [];
       let borderColor = [];
       let data = [];
+      // console.log(this.piedata.pietype);
+      // console.log(this.piedata[this.piedata.pietype]);
+      let barcolor = this.statucolor(this.piedata.Status);
+      labels.push(this.piedata.DeviceName);
+      data.push(this.piedata[this.piedata.pietype]);
+      backgroundColor.push(barcolor);
+      borderColor.push(barcolor);
 
-      for (let ssdrow of this.items) {
-        let barcolor = this.statucolor(ssdrow.Status);
-        labels.push(ssdrow.DeviceName);
-        data.push(ssdrow[this.pietype]);
-        backgroundColor.push(barcolor);
-        borderColor.push(barcolor);
-      }
       // 創建charts圖形的必要屬性
+      this.chartOptions = Object.assign({}, this.chartOptions, {
+        title: {
+          display: true,
+          text: this.piedata.DeviceName,
+          position: "top"
+        },
+        rotation: -0.7 * Math.PI
+      });
       this.chartData = Object.assign({}, this.chartData, {
         labels: labels,
         borderSkipped: "bottom",
@@ -78,14 +82,7 @@ export default {
   data() {
     return {
       chartData: null,
-      chartOptions: {
-        title: {
-          display: true,
-          text: "TEST",
-          position: "top"
-        },
-        rotation: -0.7 * Math.PI
-      }
+      chartOptions: null
     };
   }
 };

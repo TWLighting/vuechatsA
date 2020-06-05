@@ -64,15 +64,16 @@ export default {
       let api = "";
       switch (type) {
         case "Read":
-          api = "getreadpiedata";
+          api = "readClick";
           break;
         case "Write":
-          api = "getpiedata";
+          api = "writeClick";
           break;
       }
       return api;
     },
     changePiedata(data) {
+      data.pietype = this.btype;
       this.$emit(this.picktype(this.btype), data);
     }
   },

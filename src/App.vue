@@ -18,7 +18,7 @@
     <b-container fluid class="bv-example-row">
       <b-row>
         <b-col sm="2" md="2">
-          <Sidebar :testp="testproparr"></Sidebar>
+          <Sidebar></Sidebar>
         </b-col>
         <b-col sm="10" md="10">
           <!-- first floor ver2.0 -->
@@ -93,10 +93,10 @@
               <hr size="1" width="100%" color="#ffffff" />
               <b-tabs content-class="mt-3">
                 <b-tab title="Read" active>
-                  <Ssdprogress :items="items" :btype="'Read'"></Ssdprogress>
+                  <Ssdprogress @readClick="settingclickpie" :items="items" :btype="'Read'"></Ssdprogress>
                 </b-tab>
                 <b-tab title="Write">
-                  <Ssdprogress :items="items" :btype="'Write'"></Ssdprogress>
+                  <Ssdprogress @writeClick="settingclickpie" :items="items" :btype="'Write'"></Ssdprogress>
                 </b-tab>
               </b-tabs>
             </b-col>
@@ -107,7 +107,7 @@
               <Virticalbarcube :title="titlegroup[6]" :items="items"></Virticalbarcube>
             </b-col>
             <b-col class="ssdcube">
-              <Temperaturecube :title="titlegroup[7]"></Temperaturecube>
+              <Temperaturecube :title="titlegroup[7]" @changeTempRow="changeTempLine"></Temperaturecube>
             </b-col>
           </b-row>
           <!-- table floor -->
@@ -115,15 +115,6 @@
             <b-col class="detailtable">
               <b-form :style="{ color: '#00b2a9' }">
                 <b-row>
-                  <b-col sm="2" md="2">
-                    <b-form-group label="Select Groups" label-for="acountList">
-                      <b-form-select
-                        id="Select"
-                        v-model="tableFrom.groups.value"
-                        :options="tableFrom.groups.groupsOptions"
-                      ></b-form-select>
-                    </b-form-group>
-                  </b-col>
                   <b-col sm="2" md="2">
                     <b-form-group label="Select Status" label-for="Status">
                       <b-form-select
@@ -139,8 +130,26 @@
                         type="search"
                         id="Keyword"
                         v-model="tableFrom.keyword.value"
-                        placeholder="Type to Search"
+                        placeholder="Platform Search"
                       ></b-form-input>
+                    </b-form-group>
+                  </b-col>
+                  <b-col sm="2" md="2">
+                    <b-form-group label="Select Model" label-for="Model">
+                      <b-form-select
+                        id="Model"
+                        v-model="tableFrom.model.value"
+                        :options="tableFrom.model.modelOptions"
+                      ></b-form-select>
+                    </b-form-group>
+                  </b-col>
+                  <b-col sm="2" md="2">
+                    <b-form-group label="Select FW" label-for="FW">
+                      <b-form-select
+                        id="FW"
+                        v-model="tableFrom.fw.value"
+                        :options="tableFrom.fw.fwOptions"
+                      ></b-form-select>
                     </b-form-group>
                   </b-col>
                   <b-col sm="2" md="2">
@@ -257,7 +266,12 @@
     </component>
     <!--TempLinecompount-->
     <component :is="alertcompount" v-if="alertwindow.isTempLine" v-on:close-alert="changeTempLine">
-      <TempLine :title="titlegroup[5]" :items="items" @chiesecolor="statucolor"></TempLine>
+      <TempLine
+        :title="titlegroup[5]"
+        :items="items"
+        @chiesecolor="statucolor"
+        :TempRowList="TempRowList"
+      ></TempLine>
     </component>
 
     <!--J-TODO Read圓餅圖6種分析-->
@@ -338,7 +352,7 @@ const Testvuegauge = {
       <b-col md="6">
         <vue-svg-gauge
           :start-angle="-130"
-          :end-angle="130"
+          :end-angle="130"eeeeeee
           :value="gaugevalue"
           :separator-step="0"
           :min="0"
@@ -506,8 +520,9 @@ export default {
     changeLine() {
       this.alertwindow.isLine = !this.alertwindow.isLine;
     },
-    changeTempLine() {
-      this.isTempLine = !this.isTempLine;
+    changeTempLine(rowdata) {
+      this.$set(this, "TempRowList", rowdata);
+      this.alertwindow.isTempLine = !this.alertwindow.isTempLine;
     },
     changePieWrite() {
       this.alertwindow.isPieRead = !this.alertwindow.isPieRead;
@@ -535,16 +550,13 @@ export default {
       this.$set(this, "clickStatusList", rowdata);
       this.alertwindow.isStatusList = !this.alertwindow.isStatusList;
     },
-
     settingpiedata(data) {
-      let setting = { a: "ddd", b: "cccc" };
       this.$set(this, "piedata", data);
     },
     settingclickpie(data) {
       this.settingpiedata(data);
       this.changePieWrite();
     },
-
     //J-NOTE 可能要放進混入MIXIN之中
     statucolor(statusValue) {
       let color = "";
@@ -623,10 +635,6 @@ export default {
       // this.$set(this.testitems[name], 0, { a: "11", b: "12" });
       // this.testpush[name].push({a:'11',b:'12'})
       console.log(this.testitems);
-    },
-    //測試子元件watch能否
-    testprops() {
-      this.$set(this, "testproparr", !this.testproparr);
     }
   },
   created() {
@@ -644,22 +652,12 @@ export default {
   },
   data() {
     return {
-      pagination: {
-        firsthover: false,
-        prevhover: false,
-        nexthover: false,
-        lasthover: false
-      },
       piedata: {},
-      testproparr: false,
       scopearr: [],
-      perPage: 3,
+      perPage: 5,
       perPageOption: [1, 2, 3, 4, 5],
       currentPage: 1,
-      Linecompount: Linecube,
       alertcompount: Testalert,
-      Piecompount: Piecube,
-      Tempercontrol: TempLine,
       istriforTemp: true,
       alertwindow: {
         isBar: false,
@@ -672,7 +670,8 @@ export default {
         isRecovery: false,
         isSsdinfo: false,
         isSmart: false,
-        isStatusList: false
+        isStatusList: false,
+        isTempRow: false
       },
       titlegroup: [
         "Top 5 Lifetime SSDs (Less than 50%)",
@@ -685,31 +684,22 @@ export default {
         "SSDs Temperature Monitoring"
       ],
       tableFrom: {
-        acount: {
-          value: null,
-          acountOptions: [
-            { value: null, text: "ALL" },
-            { value: "jim", text: "JIM" },
-            { value: "grace", text: "GRACE" },
-            { value: "tom", text: "TOM" }
-          ]
-        },
-        groups: {
-          value: null,
-          groupsOptions: [
-            { value: null, text: "ALL" },
-            { value: "1", text: "第一組" },
-            { value: "2", text: "第二組" },
-            { value: "3", text: "第三組" }
-          ]
-        },
         status: {
           value: null,
           statusOptions: [
-            { value: null, text: "ALL" },
-            { value: "1", text: "正常" },
-            { value: "2", text: "故障" }
+            { value: null, text: "Select Status" },
+            { value: 0, text: "Critical" },
+            { value: 1, text: "Warning" },
+            { value: 2, text: "Healthy" }
           ]
+        },
+        model: {
+          value: null,
+          modelOptions: [{ value: null, text: "Select Model" }]
+        },
+        fw: {
+          value: null,
+          fwOptions: [{ value: null, text: "Select FW" }]
         },
         keyword: {
           value: null
@@ -792,15 +782,13 @@ export default {
         { status: "Warning", color: "#FFFF00", value: 20 },
         { status: "Healthy", color: "#00B050", value: 3 }
       ],
-      clickStatusList: {}
+      clickStatusList: {},
+      TempRowList: {}
     };
   }
 };
 /*J-MEMO 待完成事項
-1.取得 前5顆SSD 一周不正常斷電次數API
-2.取得 前最高溫度5顆SSD 一周溫度變化API
-3.取得 前5顆SSD workload 讀跟寫的餅圖資料API
-4.取得 表格得到SSD資料API 與小工具連動
+1.顯示168點的長條圖
 */
 </script>
 
