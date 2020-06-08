@@ -3,22 +3,17 @@
     <b-row class="mb-1" v-for="(rowdata,index) in Loadsort" :key="index">
       <b-col md="12">
         <h6 class="set-title">{{ rowdata.DeviceName }}:</h6>
-        <a class="point" @click="changePiedata(rowdata)">
-          <div class="myProgress">
-            <template v-if="index==0">
-              <div
-                class="mybar"
-                :style="settingbar(rowdata.Status,rowdata[btype])"
-              >{{rowdata[btype]}}</div>
-            </template>
-            <template v-else>
-              <div
-                class="mybar-right"
-                :style="settingbar(rowdata.Status,rowdata[btype])"
-              >{{rowdata[btype]}}</div>
-            </template>
-          </div>
-        </a>
+        <div class="myProgress">
+          <template v-if="index==0">
+            <div class="mybar" :style="settingbar(rowdata.Status,rowdata[btype])">{{rowdata[btype]}}</div>
+          </template>
+          <template v-else>
+            <div
+              class="mybar-right"
+              :style="settingbar(rowdata.Status,rowdata[btype])"
+            >{{rowdata[btype]}}</div>
+          </template>
+        </div>
       </b-col>
       <hr class="mb-1 mt-1" size="1" width="80%" color="#ffffff" />
     </b-row>
@@ -71,10 +66,6 @@ export default {
           break;
       }
       return api;
-    },
-    changePiedata(data) {
-      data.pietype = this.btype;
-      this.$emit(this.picktype(this.btype), data);
     }
   },
   computed: {

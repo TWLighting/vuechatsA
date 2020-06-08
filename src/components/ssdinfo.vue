@@ -2,9 +2,18 @@
   <div>
     <b-row>
       <b-col>
-        <h5>SSD INFO.</h5>
+        <h5>{{this.title}}</h5>
         <hr size="1" width="100%" color="#ffffff" />
       </b-col>
+    </b-row>
+    <b-row class="mb-4">
+      <h5>Model Name:{{this.items.Model}}</h5>
+    </b-row>
+    <b-row class="mb-4">
+      <h5>Firmware Version:{{this.items.FW}}</h5>
+    </b-row>
+    <b-row class="mb-4">
+      <h5>Serial Number:{{this.items.SeiresNumber}}</h5>
     </b-row>
     <b-row class="mb-4">
       <h5>Total Capacity:55.90GB</h5>
@@ -42,7 +51,7 @@
 export default {
   props: {
     items: {
-      type: Array,
+      type: Object,
       default: null
     },
     title: {

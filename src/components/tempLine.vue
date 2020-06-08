@@ -1,5 +1,11 @@
 <template>
   <div>
+    <b-row>
+      <b-col>
+        <h5>{{this.TempRowList.title}}</h5>
+        <h6>{{ this.TempRowList.lists.SSDName}}</h6>
+      </b-col>
+    </b-row>
     <b-row class="justify-content-center">
       <b-col class="scrollline">
         <Linechart
@@ -82,16 +88,10 @@ export default {
         responsive: true,
         maintainAspectRatio: false,
         legend: {
-          position: "right",
-          fullWidth: false,
-          align: "left",
-          labels: { boxWidth: 20 }
+          display: false
         },
         title: {
-          position: "top",
-          display: true,
-          text: this.TempRowList.title,
-          fontSize: 24
+          display: false
         },
         scales: {
           yAxes: [

@@ -2,9 +2,18 @@
   <div>
     <b-row>
       <b-col>
-        <h5>S.M.A.R.T</h5>
+        <h5>{{this.title}}</h5>
         <hr size="1" width="100%" color="#ffffff" />
       </b-col>
+    </b-row>
+    <b-row>
+      <h5>Model Name:{{this.items.Model}}</h5>
+    </b-row>
+    <b-row>
+      <h5>Firmware Version:{{this.items.FW}}</h5>
+    </b-row>
+    <b-row>
+      <h5>Serial Number:{{this.items.SeiresNumber}}</h5>
     </b-row>
     <b-row>
       <b-table id="ssd-tb" responsive dark hover :fields="fields" :items="smartlist"></b-table>
@@ -15,7 +24,7 @@
 export default {
   props: {
     items: {
-      type: Array,
+      type: Object,
       default: null
     },
     title: {

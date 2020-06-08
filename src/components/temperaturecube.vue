@@ -8,33 +8,39 @@
       </b-col>
     </b-row>
     <b-row sm="12" md="12">
-      <b-col sm="2" md="2">
+      <b-col sm="3" md="3">
         <b-row>
           <b-col class="offset-md-3 offset-sm-3">
-            <ul
-              v-for="(rank,index) in temperatureRange"
-              class="nav nav-pills nav-stacked flex-column"
-              :key="index"
-            >
+            <template v-for="(rank,index) in temperatureRange">
               <template v-if="rank.TestNumber==0">
-                <li :style="{backgroundColor:rank.backgroundColor}">
-                  {{rank.sum}}
-                  <div class="temprange">
-                    <span>{{rank.temp}}</span>
-                  </div>
-                </li>
-              </template>
-              <template v-else>
-                <a @click="showTempList(rank.TestNumber,rank.title)" disabled>
-                  <li :style="{backgroundColor:rank.backgroundColor}">
+                <ul
+                  class="nav nav-pills nav-stacked flex-column"
+                  :key="index"
+                  :style="{height:'90px'}"
+                >
+                  <li
+                    :style="{backgroundColor:rank.backgroundColor,height:'90px',paddingTop:'2rem'}"
+                  >
                     {{rank.sum}}
                     <div class="temprange">
                       <span>{{rank.temp}}</span>
                     </div>
                   </li>
+                </ul>
+              </template>
+              <template v-else>
+                <a @click="showTempList(rank.TestNumber,rank.title)" disabled>
+                  <ul class="nav nav-pills nav-stacked flex-column" :key="index">
+                    <li :style="{backgroundColor:rank.backgroundColor}">
+                      {{rank.sum}}
+                      <div class="temprange">
+                        <span>{{rank.temp}}</span>
+                      </div>
+                    </li>
+                  </ul>
                 </a>
               </template>
-            </ul>
+            </template>
           </b-col>
         </b-row>
       </b-col>
@@ -45,12 +51,13 @@
             <b-table-simple hover small caption-top responsive>
               <b-thead head-variant="dark">
                 <b-tr>
-                  <b-th>SSDName</b-th>
+                  <b-th>Device-SSD</b-th>
                 </b-tr>
               </b-thead>
               <b-tbody>
                 <b-tr v-for="(item,index) in tempRangeList.lists" :key="index">
                   <b-td
+                    :style="{color:'#00f0b4'}"
                     class="point"
                     @click="showLineChart(tempRangeList.title,item)"
                   >{{item.SSDName}}</b-td>
@@ -116,7 +123,7 @@ export default {
         this.$set(
           this.temperatureRange[st],
           "sum",
-          this.getRandomIntInclusive(1, 500)
+          this.getRandomIntInclusive(10, 100)
         );
       }
     },
@@ -168,7 +175,7 @@ export default {
         },
         {
           temp: "0°C",
-          backgroundColor: "#a6a6a6",
+          backgroundColor: "#70AD47",
           TestNumber: 0,
           title: "0°C~60°C of SSDs",
           sum: 0

@@ -105,8 +105,10 @@ export default {
       ],
       chartData: null,
       chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
         legend: {
-          position: "right",
+          position: "bottom",
           fullWidth: false,
           align: "left",
           labels: { boxWidth: 20 }

@@ -151,12 +151,10 @@
   background-color: #5a5a6e;
 }
 .mybar {
-  padding: 1px 0;
   text-align: center;
   color: #ffffff;
 }
 .mybar-right {
-  padding: 1px 0;
   text-align: right;
   color: #ffffff;
 }
@@ -275,14 +273,21 @@
   color: #fff;
   cursor: pointer;
 }
+.nav-item a {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+}
+
 .temprange {
   position: absolute;
   text-align: right;
-  width: 50px;
+  width: 40px;
   height: auto;
-  left: -54%;
+  left: -2.8rem;
   bottom: 0;
 }
+
 .scrollbarshow .tab-content {
   height: 400px;
   overflow-x: hidden;

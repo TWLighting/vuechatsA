@@ -90,6 +90,8 @@ export default {
     return {
       chartData: null,
       chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false, // my new default options
         legend: {
           display: false
         },
@@ -101,7 +103,6 @@ export default {
             bottom: 0
           }
         },
-        maintainAspectRatio: false, // my new default options
         scales: {
           xAxes: [
             {

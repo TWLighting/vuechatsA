@@ -4,7 +4,7 @@
     <hr size="1" width="100%" color="#ffffff" />
     <b-row>
       <b-col class="d-flex justify-content-center">
-        <v-chart :style="{width:'300px',height:'300px'}" :options="option" />
+        <v-chart :style="{width:'300px',height:'300px',marginLeft:'8%'}" :options="option" />
       </b-col>
     </b-row>
   </div>
@@ -91,7 +91,7 @@ export default {
                 return connected.toString().concat("/", total.toString());
               }
             },
-            data: [{ value: connected, name: "Online / Total SSD" }]
+            data: [{ value: connected }]
           }
         ]
       });

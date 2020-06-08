@@ -1,5 +1,20 @@
 <template>
   <div>
+    <b-row>
+      <b-col>
+        <h5>{{this.title}}</h5>
+        <hr size="1" width="100%" color="#ffffff" />
+      </b-col>
+    </b-row>
+    <b-row>
+      <h5>Model Name:{{this.items.Model}}</h5>
+    </b-row>
+    <b-row>
+      <h5>Firmware Version:{{this.items.FW}}</h5>
+    </b-row>
+    <b-row>
+      <h5>Serial Number:{{this.items.SeiresNumber}}</h5>
+    </b-row>
     <b-row class="d-flex">
       <div class="piereadgroup" v-for="(option,index) in ssdoptions" :key="index">
         <Piechart :chartData="option.chartData" :options="option.chartOptions"></Piechart>
@@ -12,7 +27,7 @@ import Piechart from "./charts/peichart";
 export default {
   props: {
     items: {
-      type: Array,
+      type: Object,
       default: null
     },
     title: {
