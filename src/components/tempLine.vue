@@ -88,9 +88,10 @@ export default {
           labels: { boxWidth: 20 }
         },
         title: {
-          position: "left",
+          position: "top",
           display: true,
-          text: this.TempRowList.title
+          text: this.TempRowList.title,
+          fontSize: 24
         },
         scales: {
           yAxes: [

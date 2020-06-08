@@ -290,7 +290,7 @@
       v-if="alertwindow.isCoreanalyzer"
       v-on:close-alert="changeCoreanalyzer"
     >
-      <Piegroupread :title="titlegroup[1]" :items="items" :pietype="'Read'"></Piegroupread>
+      <widgetCoreanalyzer :title="titlegroup[1]" :items="items"></widgetCoreanalyzer>
     </component>
     <!--新增SSD INDO列表功能-->
     <component :is="alertcompount" v-if="alertwindow.isSsdinfo" v-on:close-alert="changeSsdinfo">
@@ -329,7 +329,7 @@ import Ssdprogress from "./components/ssdprogress";
 import Totalgauge from "./components/charts/totalgauge";
 import Piegroupread from "./components/piegroupread";
 import Piechart from "./components/charts/peichart";
-// import widgetCoreanalyzer from "./components/widgetCoreanalyzer";
+import widgetCoreanalyzer from "./components/widgetCoreanalyzer";
 //dev2.0新功能
 import { VueSvgGauge } from "vue-svg-gauge";
 import Virticalbarcube from "./components/virticalbarcube";
@@ -392,7 +392,8 @@ export default {
     Virticalbarcube,
     Smartlist,
     Ssdinfo,
-    Statuslist
+    Statuslist,
+    widgetCoreanalyzer
   },
   beforeMount() {},
   mounted() {

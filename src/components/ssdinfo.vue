@@ -19,19 +19,19 @@
       <h5>Write Workload:</h5>
     </b-row>
     <b-row cols="4">
-      <b-col style="border-right:#000 soild 1px">
+      <b-col class="border-right border-secondary">
         <h5>Today</h5>
         <h5>7GB</h5>
       </b-col>
-      <b-col style="border-right:#000 soild 1px">
+      <b-col class="border-right border-secondary">
         <h5>Daily</h5>
         <h5>7GB</h5>
       </b-col>
-      <b-col style="border-right:#000 soild 1px">
+      <b-col class="border-right border-secondary">
         <h5>Weekly</h5>
         <h5>49GB</h5>
       </b-col>
-      <b-col :style="{borderRight:'#fff000 soild 1px'}">
+      <b-col>
         <h5>Total</h5>
         <h5>49GB</h5>
       </b-col>

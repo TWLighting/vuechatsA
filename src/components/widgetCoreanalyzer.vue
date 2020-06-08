@@ -29,6 +29,12 @@ export default {
     setPiecolor(sensorname) {
       let color = "";
       switch (sensorname) {
+        case "Read":
+          color = "#CEF54C";
+          break;
+        case "Write":
+          color = "#FE97B4";
+          break;
         case "WriteLength 2K":
           color = "#CDF54B";
           break;
@@ -99,23 +105,35 @@ export default {
       }
       return allsensordata;
     },
+    getRandomIntInclusive(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min; // 含最大值，含最小值
+    },
     async setpiedata() {
       for (let i = 0; i < this.sensorList.length; i++) {
         let labels = [];
         let backgroundColor = [];
         let borderColor = [];
         let data = [];
-        let sensordata = null;
-        await this.getsensoridListdata(this.allrowpiedata[i]).then(function(
-          res
-        ) {
-          sensordata = res;
-        });
+        // let sensordata = null;
+        // await this.getsensoridListdata(this.allrowpiedata[i]).then(function(
+        //   res
+        // ) {
+        //   sensordata = res;
+        // });
         // for API的資料
-        for (let ssdrow of sensordata) {
-          let barcolor = this.setPiecolor(ssdrow[0].n);
-          labels.push(ssdrow[0].n);
-          data.push(ssdrow[0].v);
+        // for (let ssdrow of sensordata) {
+        //   let barcolor = this.setPiecolor(ssdrow[0].n);
+        //   labels.push(ssdrow[0].n);
+        //   data.push(ssdrow[0].v);
+        //   backgroundColor.push(barcolor);
+        //   borderColor.push(barcolor);
+        // }
+        for (let ssdrow of this.sensorList[i].List) {
+          let barcolor = this.setPiecolor(ssdrow);
+          labels.push(ssdrow);
+          data.push(this.getRandomIntInclusive(100, 600));
           backgroundColor.push(barcolor);
           borderColor.push(barcolor);
         }
@@ -165,6 +183,10 @@ export default {
       ssdoptions: [],
       sensorList: [
         {
+          title: "Total Command Read/Write",
+          List: ["Write", "Read"]
+        },
+        {
           title: "Total Sequential & Random Read/Write",
           List: [
             "ReadLength 2K",
@@ -175,19 +197,6 @@ export default {
             "ReadLength 64K",
             "ReadLength 128K",
             "ReadLength Other"
-          ]
-        },
-        {
-          title: "4K Alignment",
-          List: [
-            "WriteLength 2K",
-            "WriteLength 4K",
-            "WriteLength 8K",
-            "WriteLength 16K",
-            "WriteLength 32K",
-            "WriteLength 64K",
-            "WriteLength 128K",
-            "WriteLength other"
           ]
         },
         {
@@ -204,6 +213,23 @@ export default {
           ]
         },
         {
+          title: "Total Sector Read/Write",
+          List: ["Write", "Read"]
+        },
+        {
+          title: "4K Alignment",
+          List: [
+            "WriteLength 2K",
+            "WriteLength 4K",
+            "WriteLength 8K",
+            "WriteLength 16K",
+            "WriteLength 32K",
+            "WriteLength 64K",
+            "WriteLength 128K",
+            "WriteLength Other"
+          ]
+        },
+        {
           title: "Length of Write",
           List: [
             "WriteLength 2K",
@@ -213,7 +239,7 @@ export default {
             "WriteLength 32K",
             "WriteLength 64K",
             "WriteLength 128K",
-            "WriteLength other"
+            "WriteLength Other"
           ]
         }
       ]
