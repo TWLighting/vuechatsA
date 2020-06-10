@@ -269,7 +269,12 @@
       <Linecube :title="titlegroup[3]" :items="items"></Linecube>
     </component>
     <!--TempLinecompount-->
-    <component :is="alertcompount" v-if="alertwindow.isTempLine" v-on:close-alert="changeTempLine">
+    <component
+      :is="alertcompount"
+      v-if="alertwindow.isTempLine"
+      v-on:close-alert="changeTempLine"
+      :alertWidth="'90%'"
+    >
       <TempLine
         :title="titlegroup[5]"
         :items="items"

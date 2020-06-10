@@ -97,7 +97,6 @@
 
 .alertbox .more-content {
   position: relative;
-  width: 55%;
   background: white;
   border-radius: 5px;
   margin: 40px auto;
@@ -292,9 +291,4 @@
   height: 400px;
   overflow-x: hidden;
   overflow-y: scroll;
-}
-.scrollline {
-  width: 2000px;
-  overflow-x: scroll;
-  overflow-y: hidden;
 }

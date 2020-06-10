@@ -6,13 +6,33 @@
         <h6>{{ this.TempRowList.lists.SSDName}}</h6>
       </b-col>
     </b-row>
+    <b-row>
+      <b-col sm="2" md="2">
+        <b-form-group label="Select date" label-for="choesedate">
+          <b-form-select
+            id="choesedate"
+            v-model="dateform.value"
+            :options="dateform.options"
+            text-field="name"
+            @change="pickdateperiod"
+          ></b-form-select>
+        </b-form-group>
+      </b-col>
+      <b-col sm="2" md="2" v-if="dateform.value==1 && dayform!=null">
+        <b-form-group label="Select date" label-for="choesedate">
+          <b-form-select
+            id="choesedate"
+            v-model="dayform.value"
+            :options="dayform.options"
+            text-field="name"
+            @change="pickday"
+          ></b-form-select>
+        </b-form-group>
+      </b-col>
+    </b-row>
     <b-row class="justify-content-center">
-      <b-col class="scrollline">
-        <Linechart
-          :chartData="chartData"
-          :options="chartOptions"
-          :style="{width:'2000px',height:'600px'}"
-        ></Linechart>
+      <b-col>
+        <Linechart :chartData="chartData" :options="chartOptions"></Linechart>
       </b-col>
     </b-row>
   </div>
@@ -51,21 +71,60 @@ export default {
       max = Math.floor(max);
       return Math.floor(Math.random() * (max - min + 1)) + min; // 含最大值，含最小值
     },
-    setlinedata() {
+    setWeekvalue(days) {
+      let weekvalues = [];
+      for (let st = days; st >= 1; st--) {
+        weekvalues.push(this.getRandomIntInclusive(-45, 100));
+      }
+      return weekvalues;
+    },
+    setWeekdate(days, times, startday) {
+      let week = [];
+      for (let st = days; st >= 1; st--) {
+        week.push(startday.subtract(st, times).format("MM-DD HH"));
+      }
+      return week;
+    },
+    pickday() {
+      let pickday = this.dayform.options.filter(
+        x => x.value == this.dayform.value
+      );
+      let year = dayjs()
+        .startOf("year")
+        .format("YYYY");
+      let day = dayjs(year + "-" + pickday[0].name)
+        .add(1, "day")
+        .startOf("day");
+      this.setlinedata(24, "hour", day);
+    },
+    setdayoption() {
+      let period = 7;
+      let option = [];
+      let day = dayjs(new Date());
+      option.push({ value: null, name: "請選擇" });
+      for (let st = 1; st <= period; st++) {
+        option.push({
+          value: st,
+          name: day.subtract(st, "day").format("MM-DD")
+        });
+      }
+
+      this.dayform = Object.assign({}, this.dayform, {
+        value: null,
+        options: option
+      });
+    },
+    setlinedata(period, time, startday) {
       let setdatasets = [];
       let labels = [];
       let rowdata = {};
       let linedata = [];
+      labels = this.setWeekdate(period, time, startday);
+      linedata = this.setWeekvalue(period);
 
-      // 設定每個線段樣式
-
-      let day = dayjs(new Date());
-      for (let st = 168; st >= 1; st--) {
-        labels.push(day.subtract(st, "hour").format("MM-DD HH"));
-        linedata.push(this.getRandomIntInclusive(-45, 100));
-      }
       // console.log(this.TempRowList);
-      rowdata.label = this.TempRowList.lists.SSDName;
+      // 設定每個線段樣式
+      rowdata.label = "Temperature";
       rowdata.backgroundColor = this.statucolor(70);
       rowdata.borderColor = this.statucolor(70); // 設定線的顏色
       rowdata.pointBorderColor = this.statucolor(70);
@@ -101,9 +160,6 @@ export default {
                 fontStyle: "bold",
                 maxTicksLimit: 5,
                 padding: 5
-              },
-              gridLines: {
-                display: false
               }
             }
           ],
@@ -121,17 +177,31 @@ export default {
           ]
         }
       });
+    },
+    pickdateperiod() {
+      if (this.dateform.value === 1) {
+        this.setdayoption();
+      } else {
+        this.setlinedata(168, "hour", dayjs(new Date()));
+      }
     }
   },
   created() {
-    this.setlinedata();
-    // this.getvalue();
+    this.setlinedata(168, "hour", dayjs(new Date()));
   },
   data() {
     return {
       Templinedata: [],
       chartData: null,
-      chartOptions: null
+      chartOptions: null,
+      dayform: null,
+      dateform: {
+        value: 0,
+        options: [
+          { value: 0, name: "week" },
+          { value: 1, name: "days" }
+        ]
+      }
     };
   }
 };
